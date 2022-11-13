@@ -1,112 +1,98 @@
 #include <cctype>
 #include <stdio.h>
 #include <iostream>
+
+#include "cppr_str.h"
 #include "uri.h" // ParserError, Uri
 
-
-// RFC 7230, 3.2.3. WhiteSpace
-        template <typename C>
-        constexpr bool isWhiteSpaceChar(const C c) noexcept
-        {
-            return c == 32 || c == 9; // space or tab
-        };
-
-        // RFC 5234, Appendix B.1. Core Rules
-        template <typename C>
-        constexpr bool isDigitChar(const C c) noexcept
-        {
-            return c >= 48 && c <= 57; // 0 - 9
-        }
-
-        // RFC 5234, Appendix B.1. Core Rules
-        template <typename C>
-        constexpr bool isAlphaChar(const C c) noexcept
-        {
-            return
-                (c >= 97 && c <= 122) || // a - z
-                (c >= 65 && c <= 90); // A - Z
-        }
+#define NPOS std::string::npos
 
 
-static bool validUriSchemeCharacter(char c) {
-  if (isAlphaChar(c) || isDigitChar(c) || c == '+' || c == '-' || c == '.')
+static bool validUriSchemeCharacter(char const c) {
+  if (cppr::isAlphaChar(c) || cppr::isDigitChar(c) || c == '+' || c == '-' || c == '.')
     return true;
   return false;
 }
 
 
-Uri::Uri Uri::parse_uri(std::string uri) {
-  Uri rtn;
+// URI = scheme ":" ["//" authority] path ["?" query] ["#" fragment]
+cppr::Uri cppr::parse_uri(std::string uri) {
+  cppr::Uri rtn;
   std::cout << uri;
 
   std::string::iterator head = uri.begin();
   std::string::iterator tail = uri.end();
-  printf("\n\n%c\n\n%02x\n\n", *tail, *tail);
 
-  if (head == tail || !isAlphaChar(*head)) {
+  if (head == tail || !cppr::isAlphaChar(*head)) {
     throw ParseError{
       "Invalid URI. Please refer to RFC 3986 Section 3: "
       "https://www.rfc-editor.org/rfc/rfc3986#section-3.1"
     };
   }
 
-  std::cout << "After error 1";
   for (; head != tail && validUriSchemeCharacter(*head); ++head)
     rtn.scheme.push_back(*head);
 
-  if (head == tail || *head != ':' || *head != '/') {
+  std::string authority = std::string(head, tail);
+  if (head == tail || authority.substr(0, 3) != "://") {
     throw ParseError{
       "Invalid URI. Please refer to RFC 3986 Section 3: "
       "https://www.rfc-editor.org/rfc/rfc3986#section-3.1"
     };
   }
+  authority = authority.substr(3);
 
-  std::string authority = std::string(head, tail);
-
-  const auto fragmentPosition = authority.find('#');
-  if (fragmentPosition != std::string::npos) {
-    rtn.fragment = authority.substr(fragmentPosition + 1);
-    authority.resize(fragmentPosition);
+  // Fragment appears at the end of the string
+  int const fragment_index = authority.find('#');
+  if (fragment_index != NPOS) {
+    rtn.fragment = authority.substr(fragment_index + 1);
+    authority.resize(fragment_index);
   }
 
-  const auto queryPosition = authority.find('?');
-  if (queryPosition != std::string::npos) {
-    rtn.query = authority.substr(queryPosition + 1);
-    authority.resize(queryPosition);
+  // Query appears directpy before fragment
+  int const query_index = authority.find('?');
+  if (query_index != NPOS) {
+    rtn.query = authority.substr(query_index + 1);
+    authority.resize(query_index);
   }
 
-  const auto pathPosition = authority.find('/');
-  if (pathPosition != std::string::npos) {
-    rtn.path = authority.substr(pathPosition);
-    authority.resize(pathPosition);
+  // At this point, URI = [authority] path. Path always begins with '/'
+  int const path_index = authority.find('/');
+  if (path_index != NPOS) {
+    rtn.path = authority.substr(path_index);
+    authority.resize(path_index);
   }
   else {
-    rtn.path = "/";
+    rtn.path = "/"; // Default request path
   }
 
-  std::string userinfo;
-  const auto hostPosition = authority.find('@');
-  if (hostPosition != std::string::npos) {
-    userinfo = authority.substr(0, hostPosition);
+  // [username [:password ] @] host
+  std::string user_pass;
+  int const host_index = authority.find('@');
+  if (host_index != NPOS) {
+    user_pass = authority.substr(0, host_index);
+    std::cout << "\n" << user_pass << "\n";
 
-    const auto passwordPosition = userinfo.find(':');
-    if (passwordPosition != std::string::npos) {
-      rtn.user = userinfo.substr(0, passwordPosition);
-      rtn.password = userinfo.substr(passwordPosition + 1);
+    int const password_index = user_pass.find(':');
+    if (password_index != NPOS) {
+      rtn.user = user_pass.substr(0, password_index);
+      rtn.password = user_pass.substr(password_index + 1);
     }
     else {
-      rtn.user = userinfo;
+      rtn.user = user_pass;
     }
-    rtn.host = authority.substr(hostPosition + 1);
+    rtn.host = authority.substr(host_index + 1);
+    std::cout << "\n" << rtn.host << "\n";
   }
   else {
     rtn.host = authority;
   }
-
-  const auto portPosition = rtn.host.find(':');
-  if (portPosition != std::string::npos) {
-    rtn.port = rtn.host.substr(portPosition + 1);
-    rtn.host.resize(portPosition);
+  
+  // Optional port host [:port]
+  int const port_index = rtn.host.find(':');
+  if (port_index != NPOS) {
+    rtn.port = rtn.host.substr(port_index + 1);
+    rtn.host.resize(port_index);
   }
 
   return rtn;

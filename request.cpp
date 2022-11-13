@@ -3,13 +3,13 @@
 
 #include <iostream>
 
-void CppRequest::Request::add_header(std::string const key, std::string const value) {
+void cppr::Request::add_header(std::string const key, std::string const value) {
   std::string new_header = key + ": " + value;
   this->headers.push_back(new_header);
 }
 
 
-void const CppRequest::Request::write_request(std::string &request_buffer) {
+void const cppr::Request::write_request(std::string &request_buffer) {
   request_buffer += this->http_verb + " ";
   request_buffer += Url::parse_domain(this->url);
   request_buffer += " ";
@@ -22,7 +22,7 @@ void const CppRequest::Request::write_request(std::string &request_buffer) {
 }
 
 
-void const CppRequest::Get::request() {
+void const cppr::Get::request() {
   std::string request_buffer;
   this->write_request(request_buffer);
   std::cout << request_buffer << "\n\n";

@@ -3,7 +3,7 @@
 #include <string>
 #include <system_error>
 
-namespace Uri {
+namespace cppr {
   
   class ParseError final: public std::logic_error {
     public:

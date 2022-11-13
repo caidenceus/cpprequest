@@ -6,7 +6,7 @@
 #define GET "GET"
 #define POST "POST"
 
-namespace CppRequest 
+namespace cppr 
 {
   struct HttpVersion final {
     uint16_t major;
