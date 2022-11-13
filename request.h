@@ -14,11 +14,6 @@ namespace CppRequest
   };
 
 
-  // RFC 3986 Section 3
-  struct Uri final {
-    std::string scheme;
-  };
-
   enum class RequestVerb: std::uint8_t {
     GET,
     POST
