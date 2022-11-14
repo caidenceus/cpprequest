@@ -6,6 +6,8 @@
 
 #include "uri.h"
 
+#define HTTP1dot1 HttpVersion
+
 
 namespace cppr {
 
@@ -38,22 +40,20 @@ namespace cppr {
   using Header = std::pair<std::string, std::string>;
   using Headers = std::vector<Header>;
 
-
   class Request {
     protected:
       Uri uri;
       AfInet protocol;
       RequestVerb verb;
       Headers headers;
-      std::string http_version;
+      HttpVersion http_version;
 
       void const write_request(std::string &request_buffer);
 
     public:
-      // TODO: http_version shoulr be HttpVersion rather than string in Request class
       Request(std::string const uri,
-              RequestVerb verb,
-              std::string http_version = "HTTP/1.0",
+              RequestVerb const verb,
+              HttpVersion const http_version = HttpVersion{1, 1},
               AfInet const protocol = AfInet::IPv4) 
       : uri{cppr::parse_uri(uri)},
         verb{verb},

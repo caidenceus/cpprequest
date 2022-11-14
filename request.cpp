@@ -18,6 +18,15 @@
 #include <netdb.h>
 
 
+static std::string printable_http_version(cppr::HttpVersion http_version) {
+  std::string rtn{ "HTTP/" };
+  rtn += std::to_string(http_version.major);
+  rtn += ".";
+  rtn += std::to_string(http_version.minor);
+  return rtn;
+}
+
+
 // TODO: add header checking per http version
 void cppr::Request::add_header(std::string const key, std::string const value) {
   cppr::Header new_header;
@@ -51,12 +60,21 @@ void const cppr::Request::write_request(std::string &request_buffer) {
       break;
   }
 
+  bool host_header = false;
+
   request_buffer += this->uri.path + " ";
-  request_buffer += this->http_version + "\r\n";
+  request_buffer += printable_http_version(this->http_version) + "\r\n";
 
   for (auto it = this->headers.begin(); it != this->headers.end(); ++it) {
+      // TODO: headers are case insensitive, cast each header to lowercase for host checking
+      if (!host_header && ( (*it).first == "Host" || (*it).first == "host" ))
+        host_header = true;
       request_buffer += (*it).first + ": " + (*it).second + "\r\n";
   }
+
+  // Host header required for HTTP/1.1
+  if (this->http_version.major == 1 && this->http_version.minor == 1 && !host_header)
+    request_buffer += "Host: " + this->uri.host + "\r\n";
 
   // TODO: request body
 
