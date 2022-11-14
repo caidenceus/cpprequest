@@ -18,7 +18,6 @@ static bool validUriSchemeCharacter(char const c) {
 // URI = scheme ":" ["//" authority] path ["?" query] ["#" fragment]
 cppr::Uri cppr::parse_uri(std::string uri) {
   cppr::Uri rtn;
-  std::cout << uri;
 
   std::string::iterator head = uri.begin();
   std::string::iterator tail = uri.end();
@@ -71,7 +70,6 @@ cppr::Uri cppr::parse_uri(std::string uri) {
   int const host_index = authority.find('@');
   if (host_index != NPOS) {
     user_pass = authority.substr(0, host_index);
-    std::cout << "\n" << user_pass << "\n";
 
     int const password_index = user_pass.find(':');
     if (password_index != NPOS) {
@@ -82,7 +80,6 @@ cppr::Uri cppr::parse_uri(std::string uri) {
       rtn.user = user_pass;
     }
     rtn.host = authority.substr(host_index + 1);
-    std::cout << "\n" << rtn.host << "\n";
   }
   else {
     rtn.host = authority;
