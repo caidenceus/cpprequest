@@ -23,6 +23,7 @@ namespace cppr {
     std::string fragment;
   };
 
+  
   Uri parse_uri(std::string uri);
 
 } // namespace Uri

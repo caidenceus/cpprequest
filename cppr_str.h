@@ -1,9 +1,10 @@
 #pragma once
 
+
 namespace cppr {
 
-  bool isWhiteSpaceChar(char const c);
-  bool isDigitChar(char const c);
-  bool isAlphaChar(char const c);
+  bool is_white_space(char const c);
+  bool is_digit(char const c);
+  bool is_alpha(char const c);
 
 } // namespace cppr_str

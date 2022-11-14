@@ -9,7 +9,7 @@
 
 
 static bool validUriSchemeCharacter(char const c) {
-  if (cppr::isAlphaChar(c) || cppr::isDigitChar(c) || c == '+' || c == '-' || c == '.')
+  if (cppr::is_alpha(c) || cppr::is_digit(c) || c == '+' || c == '-' || c == '.')
     return true;
   return false;
 }
@@ -22,7 +22,7 @@ cppr::Uri cppr::parse_uri(std::string uri) {
   std::string::iterator head = uri.begin();
   std::string::iterator tail = uri.end();
 
-  if (head == tail || !cppr::isAlphaChar(*head)) {
+  if (head == tail || !cppr::is_alpha(*head)) {
     throw ParseError{
       "Invalid URI. Please refer to RFC 3986 Section 3: "
       "https://www.rfc-editor.org/rfc/rfc3986#section-3.1"
@@ -85,6 +85,7 @@ cppr::Uri cppr::parse_uri(std::string uri) {
     rtn.host = authority;
   }
   
+  // Default port depending on uri.scheme
   // Optional port host [:port]
   int const port_index = rtn.host.find(':');
   if (port_index != NPOS) {
