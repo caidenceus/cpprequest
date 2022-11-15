@@ -1,4 +1,3 @@
-#include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <errno.h>
@@ -10,6 +9,47 @@
 #include "socket_io.h"
 #include "socket_util.h"
 
+#include <algorithm>
+#include <array>
+#include <atomic>
+#include <cassert>
+#include <cctype>
+#include <climits>
+#include <condition_variable>
+#include <cstring>
+#include <errno.h>
+#include <fcntl.h>
+#include <fstream>
+#include <functional>
+#include <iomanip>
+#include <iostream>
+#include <list>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <random>
+#include <regex>
+#include <set>
+#include <sstream>
+#include <string>
+#include <sys/stat.h>
+#include <thread>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <arpa/nameser.h>
+#include <resolv.h>
+
+#ifndef INVALID_SOCKET
+#define INVALID_SOCKET (-1)
+#endif
+
+
+
+// windows using socket_t = SOCKET;
+// linuc
+using socket_t = int;
 
 const ssize_t HttpStream::init() {
   // TODO: protocol agnostic
@@ -21,14 +61,14 @@ const ssize_t HttpStream::init() {
 
   // TODO: Convert lookup_host to take host as std::string
   lookup_host(this->host.c_str(), domain_ip);
-  
+
   // TODO: protocol agnostic
   this->serv_addr.sin_family = AF_INET;
   this->serv_addr.sin_port = htons(atoi(this->port.c_str()));
 
   this->serv_addr.sin_addr.s_addr = inet_addr(domain_ip);
 
-    // TODO: write socket wrapper functions to handle error checking
+  // TODO: write socket wrapper functions to handle error checking
   if (connect(this->sockfd, (struct sockaddr *) &(this->serv_addr), sizeof(this->serv_addr)) < 0) {
     std::cout << "ERROR connecting";
     return -1;
@@ -38,25 +78,18 @@ const ssize_t HttpStream::init() {
 
 
 // TODO: add error checkinhg
-const ssize_t HttpStream::write(std::string write_buffer) {
-  return write_n_bytes(sockfd, write_buffer.c_str(), write_buffer.length());
-}
-
-
-// TODO: add error checking
-// TODO: convert argument to std::string
-const ssize_t HttpStream::read(char* read_buffer, size_t read_buff_size) {
+const ssize_t HttpStream::data_stream(std::string write_buffer, char* read_buffer, size_t read_buff_size) {
+  write_n_bytes(this->sockfd, write_buffer.c_str(), strlen(write_buffer.c_str()));
   int total, received;
   total = read_buff_size - 1;
   received = read_n_bytes(this->sockfd, read_buffer, total);
 
-    // TODO: Write error handling function
+  // TODO: Write error handling function
   if (received == total) {
-    std::cout << "ERROR storing complete response from socket";
+    std::cout << "Not all data written to receive buffer";
     return -1;
   }
-
-  return received;
+  return 0;
 }
 
 

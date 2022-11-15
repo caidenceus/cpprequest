@@ -85,12 +85,14 @@ cppr::Uri cppr::parse_uri(std::string uri) {
     rtn.host = authority;
   }
   
-  // Default port depending on uri.scheme
   // Optional port host [:port]
   int const port_index = rtn.host.find(':');
   if (port_index != NPOS) {
     rtn.port = rtn.host.substr(port_index + 1);
     rtn.host.resize(port_index);
+  }
+  else {
+    rtn.port = "80";
   }
 
   return rtn;

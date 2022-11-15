@@ -1,29 +1,31 @@
-// TODO: remove adjunct headers
 #include "request.h"
 #include "socket_io.h"
 #include "uri.h"
 #include "socket_util.h"
 
+#include <algorithm>
 #include <stdio.h>
 #include <iostream>
-
-#include <arpa/inet.h>
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
 
 
 static std::string printable_http_version(cppr::HttpVersion http_version) {
   std::string rtn{ "HTTP/" };
-  rtn += std::to_string(http_version.major);
-  rtn += ".";
-  rtn += std::to_string(http_version.minor);
-  return rtn;
+
+  switch (http_version) {
+    case cppr::HttpVersion::ZeroDotNine : return rtn + "0.9";
+      break;
+    case cppr::HttpVersion::OneDotZero : return rtn + "1.0";
+      break;
+    case cppr::HttpVersion::OneDotOne : return rtn + "1.1";
+      break;
+    case cppr::HttpVersion::TwoDotZero : return rtn + "2.0";
+      break;
+    case cppr::HttpVersion::ThreeDotZero : return rtn + "3.0";
+      break;
+    default:
+      return rtn + "1.1";
+  }
 }
 
 
@@ -36,25 +38,79 @@ void cppr::Request::add_header(std::string const key, std::string const value) {
 }
 
 
+bool valid_verb_per_http_version(cppr::HttpVersion version, std::string verb) {
+  // TODO: move these to global scope
+  std::vector<std::string> validZeroDotNine =
+    { "GET" };
+  std::vector<std::string> validOneDotZero =
+    { "GET", "HEAD", "POST" };
+  std::vector<std::string> validOneDotOne = 
+    { "GET", "HEAD", "PATCH", "POST", "PUT", "OPTIONS", "DELETE" };
+
+  // TODO: Add HTTP 2.0 and 3.0
+
+  switch (version) {
+    case cppr::HttpVersion::ZeroDotNine:
+      return (std::find(validZeroDotNine.begin(), validZeroDotNine.end(), verb) != validZeroDotNine.end());
+      break;
+    case cppr::HttpVersion::OneDotZero:
+      return (std::find(validOneDotZero.begin(), validOneDotZero.end(), verb) != validOneDotZero.end());
+      break;
+    case cppr::HttpVersion::OneDotOne:
+      return (std::find(validOneDotOne.begin(), validOneDotOne.end(), verb) != validOneDotOne.end());
+      break;
+    default:
+      return false;
+  }
+}
+
+
 void const cppr::Request::write_request(std::string &request_buffer) {
   switch (this->verb) {
-    case cppr::RequestVerb::GET : request_buffer += "GET ";
+    case cppr::RequestVerb::GET:
+      if (valid_verb_per_http_version(this->http_version, "GET"))
+        request_buffer += "GET ";
+      // throw error
       break;
-    case cppr::RequestVerb::POST : request_buffer += "POST ";
+    case cppr::RequestVerb::POST:
+      if (valid_verb_per_http_version(this->http_version, "POST"))
+        request_buffer += "POST ";
+      // throw error
       break;
-    case cppr::RequestVerb::PUT : request_buffer += "PUT ";
+    case cppr::RequestVerb::PUT:
+      if (valid_verb_per_http_version(this->http_version, "PUT"))
+        request_buffer += "PUT ";
+      // throw error
       break;
-    case cppr::RequestVerb::HEAD : request_buffer += "HEAD ";
+    case cppr::RequestVerb::HEAD:
+      if (valid_verb_per_http_version(this->http_version, "HEAD"))
+        request_buffer += "HEAD ";
+      // throw error
       break;
-    case cppr::RequestVerb::PATCH : request_buffer += "PATCH ";
+    case cppr::RequestVerb::PATCH:
+      if (valid_verb_per_http_version(this->http_version, "PATCH"))
+        request_buffer += "PATCH ";
+      // throw error
       break;
-    case cppr::RequestVerb::OPTIONS : request_buffer += "OPTIONS ";
+    case cppr::RequestVerb::OPTIONS:
+      if (valid_verb_per_http_version(this->http_version, "OPTIONS"))
+        request_buffer += "OPTIONS ";
+      // throw error
       break;
-    case cppr::RequestVerb::TRACE : request_buffer += "TRACE ";
+    case cppr::RequestVerb::TRACE:
+      if (valid_verb_per_http_version(this->http_version, "TRACE"))
+        request_buffer += "TRACE ";
+      // throw error
       break;
-    case cppr::RequestVerb::CONNECT : request_buffer += "CONNECT ";
+    case cppr::RequestVerb::CONNECT:
+      if (valid_verb_per_http_version(this->http_version, "CONNECT"))
+        request_buffer += "CONNECT ";
+      // throw error
       break;
-    case cppr::RequestVerb::DELETE : request_buffer += "DELETE ";
+    case cppr::RequestVerb::DELETE:
+      if (valid_verb_per_http_version(this->http_version, "DELETE"))
+        request_buffer += "DELETE ";
+      // throw error
       break;
     default : // Throw error TODO: write error
       break;
@@ -73,7 +129,7 @@ void const cppr::Request::write_request(std::string &request_buffer) {
   }
 
   // Host header required for HTTP/1.1
-  if (this->http_version.major == 1 && this->http_version.minor == 1 && !host_header)
+  if (this->http_version == cppr::HttpVersion::OneDotOne && !host_header)
     request_buffer += "Host: " + this->uri.host + "\r\n";
 
   // TODO: request body
@@ -83,7 +139,6 @@ void const cppr::Request::write_request(std::string &request_buffer) {
 }
 
 
-// TODO: do we need to overload this function?
 // TODO: return response code if applicable, -1 otherwise
 // TODO: add error checking
 ssize_t const cppr::Get::request() {
@@ -97,10 +152,8 @@ ssize_t const cppr::Get::request() {
 
   HttpStream stream{ this->uri };
   stream.init();
-  stream.write(request_buffer);
-  stream.read(response_buffer, sizeof(response_buffer));
-  std::cout << response_buffer;  // debug
-  stream.end();
-
+  stream.data_stream(request_buffer, response_buffer, sizeof(response_buffer));
+  std::cout << response_buffer;
+  std::cout << "\n\n";
   return 0;
 }

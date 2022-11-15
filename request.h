@@ -11,9 +11,12 @@
 
 namespace cppr {
 
-  struct HttpVersion final {
-    uint16_t major;
-    uint16_t minor;
+  enum class HttpVersion: std::uint8_t {
+    ZeroDotNine,
+    OneDotZero,
+    OneDotOne,
+    TwoDotZero,
+    ThreeDotZero
   };
 
 
@@ -53,7 +56,7 @@ namespace cppr {
     public:
       Request(std::string const uri,
               RequestVerb const verb,
-              HttpVersion const http_version = HttpVersion{1, 1},
+              HttpVersion const http_version = HttpVersion::OneDotOne,
               AfInet const protocol = AfInet::IPv4) 
       : uri{cppr::parse_uri(uri)},
         verb{verb},

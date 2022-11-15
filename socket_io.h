@@ -19,10 +19,7 @@ class HttpStream {
 
     // Create the sockfd and fill out serv_addr
     const ssize_t init();
-    const ssize_t write(std::string write_buffer);
-    // TODO: read buffer std::string rather than char pointer?
-    const ssize_t read(char* read_buffer, size_t read_buff_size);
-    const int end() { return close(this->sockfd); }
+    const ssize_t data_stream(std::string write_buffer, char* read_buffer, size_t read_buff_size);
 };
 
 
