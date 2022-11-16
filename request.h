@@ -59,10 +59,13 @@ namespace cppr {
   class Get final: public Request {
     public:
       Get(std::string uri) : Request(uri, "GET") { ; }
+      Get(std::string uri, cppr::HttpVersion version) : Request(uri, "GET", version) { ; }
 
       // TODO: Ctor to pass (uri, port)
       // TODO: Ctor to pass (domain, resource)
       // TODO: Ctor to pass (domain, resource, port)
+      //
+      // TODO: add all above ctors with http version as an argument
 
       ssize_t const request();
 
@@ -72,10 +75,13 @@ namespace cppr {
   class Post final: public Request {
     public:
       Post(std::string uri) : Request(uri, "POST") { ; }
+      Post(std::string uri, cppr::HttpVersion version) : Request(uri, "POST", version) { ; }
       
       // TODO: Ctor to pass (uri, port)
       // TODO: Ctor to pass (domain, resource)
       // TODO: Ctor to pass (domain, resource, port)
+      
+      // TODO: add all above ctors with HTTP version as an argument
       
       // TODO: implement this
       ssize_t const request();

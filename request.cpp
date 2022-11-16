@@ -2,6 +2,7 @@
 #include "socket_io.h"
 #include "uri.h"
 #include "socket_util.h"
+#include "error.h"
 
 #include <algorithm>
 #include <stdio.h>
@@ -10,18 +11,19 @@
 
 
 static std::string printable_http_version(cppr::HttpVersion http_version) {
-  std::string rtn{ "HTTP/" };
+  std::string rtn;
 
   switch (http_version) {
-    case cppr::HttpVersion::ZeroDotNine : return rtn + "0.9";
+    // If no version number is spcified, HTTP/0.9 is used
+    case cppr::HttpVersion::ZeroDotNine : return rtn = "";
       break;
-    case cppr::HttpVersion::OneDotZero : return rtn + "1.0";
+    case cppr::HttpVersion::OneDotZero : return rtn = "HTTP/1.0";
       break;
-    case cppr::HttpVersion::OneDotOne : return rtn + "1.1";
+    case cppr::HttpVersion::OneDotOne : return rtn = "HTTP/1.1";
       break;
-    case cppr::HttpVersion::TwoDotZero : return rtn + "2.0";
+    case cppr::HttpVersion::TwoDotZero : return rtn = "HTTP/2.0";
       break;
-    case cppr::HttpVersion::ThreeDotZero : return rtn + "3.0";
+    case cppr::HttpVersion::ThreeDotZero : return rtn = "HTTP/3.0";
       break;
     default:
       return rtn + "1.1";
@@ -66,17 +68,29 @@ static bool valid_method_per_http_version(cppr::HttpVersion version, std::string
 
 
 void const cppr::Request::write_request_header(std::string &request_buffer) {
+  std::string http_version = printable_http_version(this->http_version);  
+
   if (valid_method_per_http_version(this->http_version, this->method)) {
     request_buffer += this->method + " ";
   }
   else {
-    // throw an error
+    std::string err{
+        "WARNING: " + this->method + " is an invalid method for " +
+        (http_version == "" ? "HTTP/0.9" : http_version) + ".\n"
+    };
+    throw cppr::error::RequestError{err};
+  }
+
+  request_buffer += this->uri.path + " ";
+  request_buffer += http_version + "\r\n";
+  
+  // HTTP/0.9 does not support headers
+  if (this->http_version < cppr::HttpVersion::OneDotZero) {
+    request_buffer += "\r\n";
+    return;
   }
 
   bool host_header = false;
-
-  request_buffer += this->uri.path + " ";
-  request_buffer += printable_http_version(this->http_version) + "\r\n";
 
   for (auto it = this->headers.begin(); it != this->headers.end(); ++it) {
       // TODO: headers are case insensitive, cast each header to lowercase for host checking
