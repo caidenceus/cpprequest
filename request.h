@@ -38,7 +38,7 @@ namespace cppr {
       Headers headers;
       HttpVersion http_version;
 
-      void const write_request(std::string &request_buffer);
+      void const write_request_header(std::string &request_buffer);
 
     public:
       Request(std::string const uri,

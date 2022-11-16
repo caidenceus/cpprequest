@@ -65,7 +65,7 @@ static bool valid_method_per_http_version(cppr::HttpVersion version, std::string
 }
 
 
-void const cppr::Request::write_request(std::string &request_buffer) {
+void const cppr::Request::write_request_header(std::string &request_buffer) {
   if (valid_method_per_http_version(this->http_version, this->method)) {
     request_buffer += this->method + " ";
   }
@@ -89,9 +89,7 @@ void const cppr::Request::write_request(std::string &request_buffer) {
   if (this->http_version == cppr::HttpVersion::OneDotOne && !host_header)
     request_buffer += "Host: " + this->uri.host + "\r\n";
 
-  // TODO: request body
-
-  // Required \r\n after the request body
+  // Required \r\n after the request headers
   request_buffer += "\r\n";
 }
 
@@ -100,8 +98,36 @@ void const cppr::Request::write_request(std::string &request_buffer) {
 // TODO: add error checking
 ssize_t const cppr::Get::request() {
   std::string request_buffer;
-  this->write_request(request_buffer);
+  this->write_request_header(request_buffer);
   std::cout << request_buffer;  // debug
+
+  // TODO: change this to a std::string?
+  char response_buffer[65535];
+  bzero(&response_buffer, sizeof(response_buffer));
+
+  HttpStream stream{ this->uri };
+  stream.init();
+  stream.data_stream(request_buffer, response_buffer, sizeof(response_buffer));
+  std::cout << response_buffer;
+  std::cout << "\n\n";
+  return 0;
+}
+
+
+// TODO: return response code if applicable, -1 otherwise
+// TODO: add error checking
+ssize_t const cppr::Post::request() {
+  this->add_header("Content-Type", "application/x-www-form-urlencoded");
+  std::string content_length = std::to_string(this->uri.query.length());
+  this->add_header("Content-Length", content_length);
+
+  std::string request_buffer;
+  this->write_request_header(request_buffer);
+
+  //TODO: write the body
+  request_buffer += this->uri.query + "\r\n";
+
+  std::cout << request_buffer + "\n\n";
 
   // TODO: change this to a std::string?
   char response_buffer[65535];

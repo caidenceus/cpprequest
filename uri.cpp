@@ -54,6 +54,9 @@ cppr::Uri cppr::parse_uri(std::string uri) {
     rtn.query = authority.substr(query_index + 1);
     authority.resize(query_index);
   }
+  
+  // Percent encode the query
+  rtn.query = url_encode(rtn.query);
 
   // At this point, URI = [authority] path. Path always begins with '/'
   int const path_index = authority.find('/');
