@@ -38,7 +38,7 @@ void cppr::Request::add_header(std::string const key, std::string const value) {
 }
 
 
-bool valid_verb_per_http_version(cppr::HttpVersion version, std::string verb) {
+static bool valid_method_per_http_version(cppr::HttpVersion version, std::string verb) {
   // TODO: move these to global scope
   std::vector<std::string> validZeroDotNine =
     { "GET" };
@@ -66,54 +66,11 @@ bool valid_verb_per_http_version(cppr::HttpVersion version, std::string verb) {
 
 
 void const cppr::Request::write_request(std::string &request_buffer) {
-  switch (this->verb) {
-    case cppr::RequestVerb::GET:
-      if (valid_verb_per_http_version(this->http_version, "GET"))
-        request_buffer += "GET ";
-      // throw error
-      break;
-    case cppr::RequestVerb::POST:
-      if (valid_verb_per_http_version(this->http_version, "POST"))
-        request_buffer += "POST ";
-      // throw error
-      break;
-    case cppr::RequestVerb::PUT:
-      if (valid_verb_per_http_version(this->http_version, "PUT"))
-        request_buffer += "PUT ";
-      // throw error
-      break;
-    case cppr::RequestVerb::HEAD:
-      if (valid_verb_per_http_version(this->http_version, "HEAD"))
-        request_buffer += "HEAD ";
-      // throw error
-      break;
-    case cppr::RequestVerb::PATCH:
-      if (valid_verb_per_http_version(this->http_version, "PATCH"))
-        request_buffer += "PATCH ";
-      // throw error
-      break;
-    case cppr::RequestVerb::OPTIONS:
-      if (valid_verb_per_http_version(this->http_version, "OPTIONS"))
-        request_buffer += "OPTIONS ";
-      // throw error
-      break;
-    case cppr::RequestVerb::TRACE:
-      if (valid_verb_per_http_version(this->http_version, "TRACE"))
-        request_buffer += "TRACE ";
-      // throw error
-      break;
-    case cppr::RequestVerb::CONNECT:
-      if (valid_verb_per_http_version(this->http_version, "CONNECT"))
-        request_buffer += "CONNECT ";
-      // throw error
-      break;
-    case cppr::RequestVerb::DELETE:
-      if (valid_verb_per_http_version(this->http_version, "DELETE"))
-        request_buffer += "DELETE ";
-      // throw error
-      break;
-    default : // Throw error TODO: write error
-      break;
+  if (valid_method_per_http_version(this->http_version, this->method)) {
+    request_buffer += this->method + " ";
+  }
+  else {
+    // throw an error
   }
 
   bool host_header = false;

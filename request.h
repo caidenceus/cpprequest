@@ -19,19 +19,6 @@ namespace cppr {
     ThreeDotZero
   };
 
-
-  enum class RequestVerb: std::uint8_t {
-    GET,
-    POST,
-    PUT,
-    HEAD,
-    PATCH,
-    OPTIONS,
-    TRACE,
-    CONNECT,
-    DELETE
-  };
-
   
   // TODO: move socket interface to another file
   enum class AfInet: std::uint8_t {
@@ -47,7 +34,7 @@ namespace cppr {
     protected:
       Uri uri;
       AfInet protocol;
-      RequestVerb verb;
+      std::string method;
       Headers headers;
       HttpVersion http_version;
 
@@ -55,11 +42,11 @@ namespace cppr {
 
     public:
       Request(std::string const uri,
-              RequestVerb const verb,
+              std::string const method,
               HttpVersion const http_version = HttpVersion::OneDotOne,
               AfInet const protocol = AfInet::IPv4) 
       : uri{cppr::parse_uri(uri)},
-        verb{verb},
+        method{method},
         http_version{http_version},
         protocol{protocol}
       { ; }
@@ -71,14 +58,14 @@ namespace cppr {
 
   class Get final: public Request {
     public:
-      Get(std::string uri) : Request(uri, RequestVerb::GET) { ; }
+      Get(std::string uri) : Request(uri, "GET") { ; }
       ssize_t const request();  
   }; // class Get
 
 
   class Post final: public Request {
     public:
-      Post(std::string uri) : Request(uri, RequestVerb::POST) { ; }
+      Post(std::string uri) : Request(uri, "POST") { ; }
       // TODO: implement this
       ssize_t const request();
   }; // class Post
