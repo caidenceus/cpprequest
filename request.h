@@ -59,13 +59,24 @@ namespace cppr {
   class Get final: public Request {
     public:
       Get(std::string uri) : Request(uri, "GET") { ; }
-      ssize_t const request();  
+
+      // TODO: Ctor to pass (uri, port)
+      // TODO: Ctor to pass (domain, resource)
+      // TODO: Ctor to pass (domain, resource, port)
+
+      ssize_t const request();
+
   }; // class Get
 
 
   class Post final: public Request {
     public:
       Post(std::string uri) : Request(uri, "POST") { ; }
+      
+      // TODO: Ctor to pass (uri, port)
+      // TODO: Ctor to pass (domain, resource)
+      // TODO: Ctor to pass (domain, resource, port)
+      
       // TODO: implement this
       ssize_t const request();
   }; // class Post

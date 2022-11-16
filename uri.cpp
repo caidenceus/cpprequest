@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <iostream>
 
-#include "cppr_str.h"
 #include "uri.h" // ParserError, Uri
+#include "utility.h" // is_alpha, is_digit 
 
 #define NPOS std::string::npos
 
