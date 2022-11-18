@@ -33,22 +33,20 @@ namespace cppr {
   class Request {
     protected:
       Uri uri;
-      AfInet protocol;
       std::string method;
-      Headers headers;
       HttpVersion http_version;
+
+      Headers headers;
 
       void const write_request_header(std::string &request_buffer);
 
     public:
       Request(std::string const uri,
               std::string const method,
-              HttpVersion const http_version = HttpVersion::OneDotOne,
-              AfInet const protocol = AfInet::IPv4) 
+              HttpVersion const http_version = HttpVersion::OneDotOne) 
       : uri{cppr::parse_uri(uri)},
         method{method},
-        http_version{http_version},
-        protocol{protocol}
+        http_version{http_version}
       { ; }
 
       virtual ssize_t const request() = 0;
