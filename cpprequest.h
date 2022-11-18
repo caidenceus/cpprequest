@@ -1,12 +1,10 @@
 #pragma once
 
-#include <string>
-#include <utility>
-#include <vector>
-
 #include "uri.h"
 
-#define HTTP1dot1 HttpVersion
+#include <string>
+#include <vector>
+#include <utility>  // std::pair
 
 
 namespace cppr {
@@ -19,7 +17,7 @@ namespace cppr {
     ThreeDotZero
   };
 
-  
+
   // TODO: move socket interface to another file
   enum class AfInet: std::uint8_t {
     IPv4,
@@ -29,6 +27,7 @@ namespace cppr {
 
   using Header = std::pair<std::string, std::string>;
   using Headers = std::vector<Header>;
+
 
   class Request {
     protected:
@@ -42,8 +41,8 @@ namespace cppr {
     public:
       Request(std::string const uri,
               std::string const method,
-	      int const port = 80,
-              HttpVersion const http_version = HttpVersion::OneDotOne) 
+              int const port = 80,
+              HttpVersion const http_version = HttpVersion::OneDotOne)
       : uri{cppr::parse_uri(uri, std::to_string(port))},
         method{method},
         http_version{http_version}
@@ -70,6 +69,8 @@ namespace cppr {
       Get(std::string const uri, int const port, cppr::HttpVersion const version) : Request(uri, "GET", port, version) { ; }
 
       ssize_t request();
+
+      virtual ~Get() = default;
   }; // class Get
 
 
@@ -77,14 +78,14 @@ namespace cppr {
     public:
       Post(std::string const uri) : Request(uri, "POST") { ; }
       Post(std::string const uri, cppr::HttpVersion version) : Request(uri, "POST", version) { ; }
-      
+
       Post(std::string const uri, int const port) : Request(uri, "POST", port) { ; }
       Post(std::string const uri, int const port, cppr::HttpVersion const version) : Request(uri, "POST", port, version) { ; }
 
       ssize_t request();
+
+      virtual ~Post() = default;
   }; // class Post
 
-  // TODO: write all Verb request classes
 
-} // namespace CppRequest
-
+}
