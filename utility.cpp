@@ -5,7 +5,7 @@
 // RFC 7230, 3.2.3. WhiteSpace
 bool cppr::is_white_space(char const c) {
   return c == 0x20 || c == 0x09; // space or tab
-};
+}
 
 
 // RFC 5234, Appendix B.1. Core Rules

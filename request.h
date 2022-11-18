@@ -35,7 +35,6 @@ namespace cppr {
       Uri uri;
       std::string method;
       HttpVersion http_version;
-
       Headers headers;
 
       void write_request_header(std::string &request_buffer);
@@ -51,6 +50,8 @@ namespace cppr {
 
       virtual ssize_t request() = 0;
       void add_header(std::string key, std::string value);
+
+      virtual ~Request() = default;
   }; // class Request
 
 
