@@ -42,8 +42,9 @@ namespace cppr {
     public:
       Request(std::string const uri,
               std::string const method,
+	      std::string const port = "80",
               HttpVersion const http_version = HttpVersion::OneDotOne) 
-      : uri{cppr::parse_uri(uri)},
+      : uri{cppr::parse_uri(uri, port)},
         method{method},
         http_version{http_version}
       { ; }

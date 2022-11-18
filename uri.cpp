@@ -16,9 +16,10 @@ static bool validUriSchemeCharacter(char const c) {
 
 
 // URI = scheme ":" ["//" authority] path ["?" query] ["#" fragment]
-cppr::Uri cppr::parse_uri(std::string uri) {
+cppr::Uri cppr::parse_uri(std::string uri, std::string port) {
   size_t index;
   cppr::Uri rtn;
+  rtn.port = port;
 
   std::string::iterator head = uri.begin();
   std::string::iterator tail = uri.end();
@@ -94,9 +95,6 @@ cppr::Uri cppr::parse_uri(std::string uri) {
   if (index != NPOS) {
     rtn.port = rtn.host.substr(index + 1);
     rtn.host.resize(index);
-  }
-  else {
-    rtn.port = "80";
   }
 
   return rtn;
