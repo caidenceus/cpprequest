@@ -38,7 +38,7 @@ namespace cppr {
 
       Headers headers;
 
-      void const write_request_header(std::string &request_buffer);
+      void write_request_header(std::string &request_buffer);
 
     public:
       Request(std::string const uri,
@@ -49,7 +49,7 @@ namespace cppr {
         http_version{http_version}
       { ; }
 
-      virtual ssize_t const request() = 0;
+      virtual ssize_t request() = 0;
       void add_header(std::string key, std::string value);
   }; // class Request
 
@@ -65,7 +65,7 @@ namespace cppr {
       //
       // TODO: add all above ctors with http version as an argument
 
-      ssize_t const request();
+      ssize_t request();
 
   }; // class Get
 
@@ -82,7 +82,7 @@ namespace cppr {
       // TODO: add all above ctors with HTTP version as an argument
       
       // TODO: implement this
-      ssize_t const request();
+      ssize_t request();
   }; // class Post
 
   // TODO: write all Verb request classes

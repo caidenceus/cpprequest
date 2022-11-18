@@ -18,8 +18,8 @@ class HttpStream {
     HttpStream(cppr::Uri uri) : host{uri.host}, port{uri.port} { ; }
 
     // Create the sockfd and fill out serv_addr
-    const ssize_t init();
-    const ssize_t data_stream(std::string write_buffer, char* read_buffer, size_t read_buff_size);
+    ssize_t init();
+    ssize_t data_stream(std::string write_buffer, char* read_buffer, size_t read_buff_size);
 };
 
 

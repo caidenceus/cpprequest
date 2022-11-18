@@ -1,3 +1,4 @@
+// TODO: remove adjunct headers
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <errno.h>
@@ -51,7 +52,7 @@
 // linuc
 using socket_t = int;
 
-const ssize_t HttpStream::init() {
+ssize_t HttpStream::init() {
   // TODO: protocol agnostic
   this->sockfd = socket(AF_INET, SOCK_STREAM, 0);
   bzero(&serv_addr, sizeof(serv_addr));
@@ -78,7 +79,7 @@ const ssize_t HttpStream::init() {
 
 
 // TODO: add error checkinhg
-const ssize_t HttpStream::data_stream(std::string write_buffer, char* read_buffer, size_t read_buff_size) {
+ssize_t HttpStream::data_stream(std::string write_buffer, char* read_buffer, size_t read_buff_size) {
   write_n_bytes(this->sockfd, write_buffer.c_str(), strlen(write_buffer.c_str()));
   int total, received;
   total = read_buff_size - 1;

@@ -67,7 +67,7 @@ static bool valid_method_per_http_version(cppr::HttpVersion version, std::string
 }
 
 
-void const cppr::Request::write_request_header(std::string &request_buffer) {
+void cppr::Request::write_request_header(std::string &request_buffer) {
   std::string http_version = printable_http_version(this->http_version);  
 
   if (valid_method_per_http_version(this->http_version, this->method)) {
@@ -110,7 +110,7 @@ void const cppr::Request::write_request_header(std::string &request_buffer) {
 
 // TODO: return response code if applicable, -1 otherwise
 // TODO: add error checking
-ssize_t const cppr::Get::request() {
+ssize_t cppr::Get::request() {
   std::string request_buffer;
   this->write_request_header(request_buffer);
   std::cout << request_buffer;  // debug
@@ -130,7 +130,7 @@ ssize_t const cppr::Get::request() {
 
 // TODO: return response code if applicable, -1 otherwise
 // TODO: add error checking
-ssize_t const cppr::Post::request() {
+ssize_t  cppr::Post::request() {
   this->add_header("Content-Type", "application/x-www-form-urlencoded");
   std::string content_length = std::to_string(this->uri.query.length());
   this->add_header("Content-Length", content_length);
