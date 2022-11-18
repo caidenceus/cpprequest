@@ -24,6 +24,6 @@ namespace cppr {
   };
 
   
-  Uri parse_uri(std::string uri);
+  Uri parse_uri(std::string uri, std::string port);
 
 } // namespace Uri

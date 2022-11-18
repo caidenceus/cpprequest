@@ -9,7 +9,7 @@ int main() {
   using namespace std;
 
   string test = "http://192.168.1.75/public/index.php";
-  cppr::Post testing{test, cppr::HttpVersion::OneDotOne};
+  cppr::Get testing{test};
   testing.request();
 
   return 0;

@@ -42,12 +42,17 @@ namespace cppr {
     public:
       Request(std::string const uri,
               std::string const method,
-	      std::string const port = "80",
+	      int const port = 80,
               HttpVersion const http_version = HttpVersion::OneDotOne) 
-      : uri{cppr::parse_uri(uri, port)},
+      : uri{cppr::parse_uri(uri, std::to_string(port))},
         method{method},
         http_version{http_version}
       { ; }
+
+      Request(std::string const uri,
+              std::string const method,
+              HttpVersion const version)
+      : Request(uri, method, 80, version) { ; }
 
       virtual ssize_t request() = 0;
       void add_header(std::string key, std::string value);
@@ -58,32 +63,24 @@ namespace cppr {
 
   class Get final: public Request {
     public:
-      Get(std::string uri) : Request(uri, "GET") { ; }
-      Get(std::string uri, cppr::HttpVersion version) : Request(uri, "GET", version) { ; }
+      Get(std::string const uri) : Request(uri, "GET") { ; }
+      Get(std::string const uri, cppr::HttpVersion const version) : Request(uri, "GET", version) { ; }
 
-      // TODO: Ctor to pass (uri, port)
-      // TODO: Ctor to pass (domain, resource)
-      // TODO: Ctor to pass (domain, resource, port)
-      //
-      // TODO: add all above ctors with http version as an argument
+      Get(std::string const uri, int const port) : Request(uri, "GET", port) { ; }
+      Get(std::string const uri, int const port, cppr::HttpVersion const version) : Request(uri, "GET", port, version) { ; }
 
       ssize_t request();
-
   }; // class Get
 
 
   class Post final: public Request {
     public:
-      Post(std::string uri) : Request(uri, "POST") { ; }
-      Post(std::string uri, cppr::HttpVersion version) : Request(uri, "POST", version) { ; }
+      Post(std::string const uri) : Request(uri, "POST") { ; }
+      Post(std::string const uri, cppr::HttpVersion version) : Request(uri, "POST", version) { ; }
       
-      // TODO: Ctor to pass (uri, port)
-      // TODO: Ctor to pass (domain, resource)
-      // TODO: Ctor to pass (domain, resource, port)
-      
-      // TODO: add all above ctors with HTTP version as an argument
-      
-      // TODO: implement this
+      Post(std::string const uri, int const port) : Request(uri, "POST", port) { ; }
+      Post(std::string const uri, int const port, cppr::HttpVersion const version) : Request(uri, "POST", port, version) { ; }
+
       ssize_t request();
   }; // class Post
 
