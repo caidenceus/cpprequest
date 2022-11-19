@@ -1,4 +1,4 @@
-#include <system_error>
+#include <stdexcept>
 
 
 namespace cppr {
@@ -7,6 +7,12 @@ namespace cppr {
     class RequestError final: public std::logic_error {
       public:
         using std::logic_error::logic_error;
+    };
+
+
+    class SocketIoError final: public std::runtime_error {
+      public:
+        using std::runtime_error::runtime_error;
     };
 
   }

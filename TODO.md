@@ -8,12 +8,15 @@
     [X] response http version
     [X] content length
 
-[ ] Move Response struct into separate file
+[X] Move Response struct into separate file
 [ ] Move internet protocol structures into separate file
 
+[ ] Function to parse response HTTP version
 [ ] Function to parse response for status code
 [ ] Function to parse response for headers
 [ ] Function to parse response for content length
+
+[X] Arguments to request functions to fill out Response by reference
 
 [ ] Make Get::request() fill out a response object
 [ ] Make Post::request() fill out a response object

@@ -108,12 +108,10 @@ void cppr::Request::write_request_header(std::string &request_buffer) {
 }
 
 
-// TODO: return response code if applicable, -1 otherwise
-// TODO: add error checking
 ssize_t cppr::Get::request(cppr::Response &response) {
+  ssize_t error;
   std::string request_buffer;
   this->write_request_header(request_buffer);
-  std::cout << request_buffer;  // debug
 
   // TODO: change this to a std::string?
   char response_buffer[65535];
@@ -121,7 +119,12 @@ ssize_t cppr::Get::request(cppr::Response &response) {
 
   HttpStream stream{ this->uri };
   stream.init();
-  stream.data_stream(request_buffer, response_buffer, sizeof(response_buffer));
+  error = stream.data_stream(request_buffer, response_buffer, sizeof(response_buffer));
+  
+  if (error != 0) {
+    throw cppr::error::SocketIoError{ "Socket error: unable to write response buffer.\n" };
+    return -1;
+  }
   
   response.raw = std::string{ response_buffer };
   cppr::parse_response_status_code(response);
