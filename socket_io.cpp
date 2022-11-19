@@ -7,6 +7,7 @@
 
 #include <iostream> // debug
 
+#include "error.h"
 #include "socket_io.h"
 #include "socket_util.h"
 
@@ -78,18 +79,29 @@ ssize_t HttpStream::init() {
 }
 
 
-// TODO: add error checkinhg
 ssize_t HttpStream::data_stream(std::string write_buffer, char* read_buffer, size_t read_buff_size) {
-  write_n_bytes(this->sockfd, write_buffer.c_str(), strlen(write_buffer.c_str()));
-  int total, received;
-  total = read_buff_size - 1;
-  received = read_n_bytes(this->sockfd, read_buffer, total);
+  int total, received, error;
+  error = write_n_bytes(this->sockfd, write_buffer.c_str(), strlen(write_buffer.c_str()));
 
-  // TODO: Write error handling function
-  if (received == total) {
-    std::cout << "Not all data written to receive buffer";
+  if (error == -1) {
+    cppr::error::SocketIoError{ "Socket error: Unable to write to the HTTP stream.\n" };
     return -1;
   }
+
+  total = read_buff_size - 1;
+  error = received = read_n_bytes(this->sockfd, read_buffer, total);
+
+  if (error == -1) {
+    cppr::error::SocketIoError{ "Socket error: Unable to read from the HTTP stream.\n" };
+    return -1;
+  }
+
+  if (received == total) {
+    cppr::error::BufferOverflowError{
+      "Success reading from socket, but not all data written to receive buffer."};
+    return -1;
+  }
+
   return 0;
 }
 

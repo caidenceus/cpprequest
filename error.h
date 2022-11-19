@@ -15,5 +15,11 @@ namespace cppr {
         using std::runtime_error::runtime_error;
     };
 
+
+    class BufferOverflowError final: public std::overflow_error {
+      public:
+        using std::overflow_error::overflow_error;
+    };
+
   }
 }
