@@ -1,13 +1,22 @@
 #include "response.h"
 
 
-void parse_response_status_code(cppr::Response &response) {
+void cppr::parse_response_status_code(cppr::Response &response) {
+  int test = 0;
+  test++;
+  return;
 }
 
 
-void parse_response_http_version(cppr::Response &response) {
+void cppr::parse_response_http_version(cppr::Response &response) {
+  int test = 0;
+  test++;
+  return;
 }
 
 
-void parse_response_headers(cppr::Response &response) {
+void cppr::parse_response_headers(cppr::Response &response) {
+  int test = 0;
+  test++;
+  return;
 }

@@ -5,6 +5,7 @@
 
 namespace cppr {
   
+  // TODO: put this in error.h
   class ParseError final: public std::logic_error {
     public:
       using std::logic_error::logic_error;

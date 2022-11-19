@@ -18,7 +18,7 @@ namespace cppr {
     public:
       std::string version;
       int status = -1;
-      cppr::Headers headers;
+      Headers headers;
       std::string raw;
 
       Response() = default;
@@ -29,14 +29,9 @@ namespace cppr {
   };
 
 
-  void parse_response_status_code(cppr::Response &response);
-
-
-  void parse_response_http_version(cppr::Response &response);
-
-
-  void parse_response_headers(cppr::Response &response);
-
+  void parse_response_status_code(Response &response);
+  void parse_response_http_version(Response &response);
+  void parse_response_headers(Response &response);
 
 
 } // namespace cppr
