@@ -27,14 +27,15 @@ A basic example of sending a GET request with the request line "GET /public/inde
 
 int main() {
   cppr::Response response_buff;
-  cppr::Get req{ "http://127.0.0.1/public/index.php" }
+  cppr::Get req{ "http://127.0.0.1/public/index.php" };
   req.request(response_buff);
-  
-  // Print the raw response
-  std::cout << req.raw;
 
-  return 0;  
+  // Print the raw response
+  std::cout << response_buff.raw;
+
+  return 0;
 }
+
 ```
 
 ## Example 2 (GET request)
@@ -48,7 +49,7 @@ int main() {
   cppr::Response response_buff;
   
   // Send this request to port 8080
-  cppr::Get req{ "http://127.0.0.1/public/index.php", 8080 }
+  cppr::Get req{ "http://127.0.0.1/public/index.php", 8080 };
 
   req.add_header("Cache-Control": "no-cache");
   req.add_header("Connection", "Keep-Alive");
@@ -57,7 +58,7 @@ int main() {
   req.request(response_buff);
   
   // Print the raw response
-  std::cout << req.raw;
+  std::cout << response_buff.raw;
 
   return 0;  
 }
@@ -79,8 +80,9 @@ int main() {
   req.request(response_buff);
   
   // Print the raw response
-  std::cout << req.raw;
+  std::cout << response_buff.raw;
 
   return 0;  
 }
 ```
+
