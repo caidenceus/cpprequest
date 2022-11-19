@@ -1,10 +1,11 @@
 #pragma once
 
-#include "uri.h"
+#include "response.h" // cppr::Response
+#include "uri.h"      // cppr::Uri
 
 #include <string>
 #include <vector>
-#include <utility>  // std::pair
+#include <utility>    // std::pair
 
 
 namespace cppr {
@@ -53,7 +54,12 @@ namespace cppr {
               HttpVersion const version)
       : Request(uri, method, 80, version) { ; }
 
-      virtual ssize_t request() = 0;
+      /**
+       * @brief Send this request on the wire and fill out a Response object.
+       *
+       * @param response The response object to store response data in.
+       */
+      virtual ssize_t request(cppr::Response &response) = 0;
       void add_header(std::string key, std::string value);
 
       virtual ~Request() = default;
@@ -68,7 +74,7 @@ namespace cppr {
       Get(std::string const uri, int const port) : Request(uri, "GET", port) { ; }
       Get(std::string const uri, int const port, cppr::HttpVersion const version) : Request(uri, "GET", port, version) { ; }
 
-      ssize_t request();
+      ssize_t request(cppr::Response &response);
 
       virtual ~Get() = default;
   }; // class Get
@@ -82,7 +88,7 @@ namespace cppr {
       Post(std::string const uri, int const port) : Request(uri, "POST", port) { ; }
       Post(std::string const uri, int const port, cppr::HttpVersion const version) : Request(uri, "POST", port, version) { ; }
 
-      ssize_t request();
+      ssize_t request(cppr::Response &response);
 
       virtual ~Post() = default;
   }; // class Post

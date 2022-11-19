@@ -1,6 +1,6 @@
 #include "cpprequest.h"
+#include "response.h"
 #include "socket_io.h"
-#include "uri.h"
 #include "socket_util.h"
 #include "error.h"
 
@@ -110,7 +110,7 @@ void cppr::Request::write_request_header(std::string &request_buffer) {
 
 // TODO: return response code if applicable, -1 otherwise
 // TODO: add error checking
-ssize_t cppr::Get::request() {
+ssize_t cppr::Get::request(cppr::Response &response) {
   std::string request_buffer;
   this->write_request_header(request_buffer);
   std::cout << request_buffer;  // debug
@@ -122,15 +122,19 @@ ssize_t cppr::Get::request() {
   HttpStream stream{ this->uri };
   stream.init();
   stream.data_stream(request_buffer, response_buffer, sizeof(response_buffer));
-  std::cout << response_buffer;
-  std::cout << "\n\n";
+  
+  response.raw = std::string{ response_buffer };
+  parse_response_status_code(response);
+  parse_response_http_version(response);
+  parse_response_headers(response);
+
   return 0;
 }
 
 
 // TODO: return response code if applicable, -1 otherwise
 // TODO: add error checking
-ssize_t  cppr::Post::request() {
+ssize_t  cppr::Post::request(cppr::Response &response) {
   this->add_header("Content-Type", "application/x-www-form-urlencoded");
   std::string content_length = std::to_string(this->uri.query.length());
   this->add_header("Content-Length", content_length);
