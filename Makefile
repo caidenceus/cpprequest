@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -std=c++17
 INCLUDE = -I.
 HEADERS = uri.h error.h request.h socket_io.h socket_util.h utility.h
 LIB = ../
