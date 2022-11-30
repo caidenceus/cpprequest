@@ -25,6 +25,7 @@
 #include <shlobj.h>
 #include <ntsecapi.h>
 #include <ws2tcpip.h> // socklen_t
+#include <BaseTsd.h>
 #include "loaddll.h"
 
 typedef __int16 int16_t;
@@ -32,6 +33,7 @@ typedef unsigned __int16 uint16_t;
 typedef __int32 int32_t;
 typedef unsigned __int32 uint32_t;
 typedef uint32_t in_addr_t;
+typedef SSIZE_T ssize_t;
 #else
 #  include <arpa/inet.h>
 #  include <stdint.h>
@@ -43,3 +45,7 @@ uint16_t Htons(uint16_t hostshort);
 in_addr_t Inet_addr(const char* cp);
 
 int Connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
+
+ssize_t Send(int sockfd, const char* buf, size_t len, int flags);
+
+ssize_t Recv(int sockfd, char* buf, size_t len, int flags);
