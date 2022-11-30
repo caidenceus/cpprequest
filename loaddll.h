@@ -1,5 +1,4 @@
-#ifndef LOAD_DLL_H__
-#define LOAD_DLL_H__
+#pragma once
 
 // ws2_32.dll function variables
 typedef int (__stdcall *WSAS)(WORD, LPWSADATA);
@@ -65,5 +64,3 @@ extern GHBN fgethostbyname;
 extern GHBA fgethostbyaddr;
 extern GPN fgetpeername;
 extern CLSO fclosesocket;
-
-#endif // LOAD_DLL_H__

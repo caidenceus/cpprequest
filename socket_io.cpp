@@ -1,4 +1,5 @@
 #include "socket_io.h"
+#include "socket_wrapper.h"
 #include "loaddll.h"
 
 
@@ -15,7 +16,7 @@ ssize_t HttpStream::init() {
 
   // TODO: protocol agnostic
   this->serv_addr.sin_family = AF_INET;
-  this->serv_addr.sin_port = fhtons(atoi(this->port.c_str()));
+  this->serv_addr.sin_port = Htons(atoi(this->port.c_str()));
 
   this->serv_addr.sin_addr.s_addr = finet_addr(this->host.c_str());
 
