@@ -19,14 +19,13 @@
 #include <unordered_map>
 #include <utility>
 
-#if defined(_WIN32) || defined(__CYGWIN__)
-
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <malloc.h>
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+
 #include <winsock2.h>
 #include <windows.h>
 #include <wininet.h>
@@ -68,6 +67,7 @@ extern "C" char* _strdup(const char* strSource);
 #  pragma pop_macro("WIN32_LEAN_AND_MEAN")
 #  pragma pop_macro("NOMINMAX")
 #else
+
 #  include <arpa/inet.h>
 #  include <errno.h>
 #  include <fcntl.h>
@@ -77,4 +77,5 @@ extern "C" char* _strdup(const char* strSource);
 #  include <sys/socket.h>
 #  include <sys/types.h>
 #  include <unistd.h>
+
 #endif // defined(_WIN32) || defined(__CYGWIN__)

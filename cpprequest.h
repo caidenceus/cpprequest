@@ -95,7 +95,7 @@ namespace cppr
                 std::string const method,
                 int const port = 80,
                 HttpVersion const http_version = HttpVersion::OneDotOne)
-            : uri{cppr::parse_uri(uri, std::to_string(port))},
+            : uri{parse_uri(uri, std::to_string(port))},
                 method{method},
                 http_version{http_version}
             { ; }

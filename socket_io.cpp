@@ -3,7 +3,7 @@
 
 ssize_t HttpStream::init() {
     // TODO: protocol agnostic
-    this->sockfd = fsocket(AF_INET, SOCK_STREAM, 0);
+    this->sockfd = Socket(AF_INET, SOCK_STREAM, 0);
     memset(&serv_addr, 0, sizeof(serv_addr));
 
     char domain_ip[INET6_ADDRSTRLEN];

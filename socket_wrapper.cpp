@@ -53,3 +53,13 @@ ssize_t Recv(int sockfd, char* buf, size_t len, int flags)
 	return recv(sockfd, buf, len, flags);
 #endif // if defined(_WIN32) || defined(__CYGWIN__)
 }
+
+
+int Socket(int domain, int type, int protocol)
+{
+#if defined(_WIN32) || defined(__CYGWIN__)
+    return fsocket(domain, type, protocol);
+#else
+    return socket(domain, type, protocol);
+#endif // if defined(_WIN32) || defined(__CYGWIN__)
+}

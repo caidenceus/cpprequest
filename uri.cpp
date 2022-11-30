@@ -4,7 +4,8 @@
 #define NPOS std::string::npos
 
 
-static bool validUriSchemeCharacter(char const c) {
+static bool validUriSchemeCharacter(char const c)
+{
     if (is_alpha(c) || is_digit(c) || c == '+' || c == '-' || c == '.')
         return true;
     return false;
@@ -12,7 +13,8 @@ static bool validUriSchemeCharacter(char const c) {
 
 
 // URI = scheme ":" ["//" authority] path ["?" query] ["#" fragment]
-cppr::Uri cppr::parse_uri(std::string uri, std::string port) {
+cppr::Uri cppr::parse_uri(std::string uri, std::string port)
+{
     size_t index;
     cppr::Uri rtn;
     rtn.port = port;
