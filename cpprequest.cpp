@@ -119,9 +119,7 @@ ssize_t cppr::Get::request(cppr::Response &response) {
   }
   
   response.raw = std::string{ response_buffer };
-  cppr::parse_response_status_code(response);
-  cppr::parse_response_http_version(response);
-  cppr::parse_response_headers(response);
+  response.parse_response();
 
   return 0;
 }

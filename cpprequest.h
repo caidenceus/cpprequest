@@ -48,13 +48,13 @@ namespace cppr
     /* Begin response definitions */
     // TODO: make http_version HttpVersion rather than std::string
     struct StatusLine final {
-        HttpVersion http_version;
+        std::string http_version;
         ssize_t status_code;
         std::string reason_phrase;
     };
 
     struct Response final {
-        StatusLine status_line{ HttpVersion::NoHttp, -1, "error"};
+        StatusLine status_line{ "error", -1, "error"};
         Headers headers{};
         size_t content_length{ 0 };
         std::string raw{};
@@ -64,75 +64,73 @@ namespace cppr
         Response(Response&&) = default;
         Response& operator=(Response&&) = default;
         ~Response() = default;
-    };
 
-    void parse_response_status_code(Response& response);
-    void parse_response_http_version(Response& response);
-    void parse_response_headers(Response& response);
+        void parse_response();
+    };
     /* End response definitions */
 
 
     class Request {
-        protected:
-            Uri uri;
-            std::string method;
-            HttpVersion http_version;
-            Headers headers;
+    protected:
+        Uri uri;
+        std::string method;
+        HttpVersion http_version;
+        Headers headers;
 
-            void write_request_header(std::string &request_buffer);
+        void write_request_header(std::string &request_buffer);
 
-        public:
-            Request(std::string const uri,
-                std::string const method,
-                int const port = 80,
-                HttpVersion const http_version = HttpVersion::OneDotOne)
-            : uri{parse_uri(uri, std::to_string(port))},
-                method{method},
-                http_version{http_version}
-            { ; }
+    public:
+        Request(std::string const uri,
+            std::string const method,
+            int const port = 80,
+            HttpVersion const http_version = HttpVersion::OneDotOne)
+        : uri{parse_uri(uri, std::to_string(port))},
+            method{method},
+            http_version{http_version}
+        { ; }
 
-            Request(std::string const uri,
-                std::string const method,
-                HttpVersion const version)
-            : Request(uri, method, 80, version) { ; }
+        Request(std::string const uri,
+            std::string const method,
+            HttpVersion const version)
+        : Request(uri, method, 80, version) { ; }
 
-            /**
-            * @brief Send this request on the wire and fill out a Response object.
-            *
-            * @param response The response object to store response data in.
-            */
-            virtual ssize_t request(Response &response) = 0;
-            void add_header(std::string key, std::string value);
+        /**
+        * @brief Send this request on the wire and fill out a Response object.
+        *
+        * @param response The response object to store response data in.
+        */
+        virtual ssize_t request(Response &response) = 0;
+        void add_header(std::string key, std::string value);
 
-            virtual ~Request() = default;
+        virtual ~Request() = default;
     }; // class Request
 
 
     class Get final: public Request {
-        public:
-            Get(std::string const uri) : Request(uri, "GET") { ; }
-            Get(std::string const uri, HttpVersion const version) : Request(uri, "GET", version) { ; }
+    public:
+        Get(std::string const uri) : Request(uri, "GET") { ; }
+        Get(std::string const uri, HttpVersion const version) : Request(uri, "GET", version) { ; }
 
-            Get(std::string const uri, int const port) : Request(uri, "GET", port) { ; }
-            Get(std::string const uri, int const port, HttpVersion const version) : Request(uri, "GET", port, version) { ; }
+        Get(std::string const uri, int const port) : Request(uri, "GET", port) { ; }
+        Get(std::string const uri, int const port, HttpVersion const version) : Request(uri, "GET", port, version) { ; }
 
-            ssize_t request(cppr::Response &response) override;
+        ssize_t request(cppr::Response &response) override;
 
-            virtual ~Get() = default;
+        virtual ~Get() = default;
     }; // class Get
 
 
     class Post final: public Request {
-        public:
-            Post(std::string const uri) : Request(uri, "POST") { ; }
-            Post(std::string const uri, HttpVersion version) : Request(uri, "POST", version) { ; }
+    public:
+        Post(std::string const uri) : Request(uri, "POST") { ; }
+        Post(std::string const uri, HttpVersion version) : Request(uri, "POST", version) { ; }
 
-            Post(std::string const uri, int const port) : Request(uri, "POST", port) { ; }
-            Post(std::string const uri, int const port, HttpVersion const version) : Request(uri, "POST", port, version) { ; }
+        Post(std::string const uri, int const port) : Request(uri, "POST", port) { ; }
+        Post(std::string const uri, int const port, HttpVersion const version) : Request(uri, "POST", port, version) { ; }
 
-            ssize_t request(Response &response) override;
+        ssize_t request(Response &response) override;
 
-            virtual ~Post() = default;
+        virtual ~Post() = default;
     }; // class Post
 
 
