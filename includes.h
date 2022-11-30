@@ -68,14 +68,14 @@ extern "C" char* _strdup(const char* strSource);
 #  pragma pop_macro("NOMINMAX")
 #else
 
-#  include <arpa/inet.h>
-#  include <errno.h>
-#  include <fcntl.h>
-#  include <netinet/in.h>
-#  include <netdb.h>
-#  include <sys/select.h>
-#  include <sys/socket.h>
-#  include <sys/types.h>
-#  include <unistd.h>
+#include <arpa/inet.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #endif // defined(_WIN32) || defined(__CYGWIN__)

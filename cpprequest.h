@@ -15,12 +15,6 @@ namespace cppr
     BOOL LoadDLLs(void);
 #endif // if defined(_WIN32) || defined(__CYGWIN__)
 
-    // TODO: put this in error.h
-    class ParseError final : public std::logic_error {
-    public:
-        using std::logic_error::logic_error;
-    };
-
 
     // RFC 3986 Section 3
     struct Uri final {
@@ -71,13 +65,6 @@ namespace cppr
         OneDotOne,
         TwoDotZero,
         ThreeDotZero
-    };
-
-
-    // TODO: move socket interface to another file
-    enum class AfInet: std::uint8_t {
-        IPv4,
-        IPv6
     };
 
 
@@ -164,5 +151,10 @@ namespace cppr
             using std::overflow_error::overflow_error;
         };
 
+
+        class ParseError final : public std::logic_error {
+        public:
+            using std::logic_error::logic_error;
+        };
     }
 }

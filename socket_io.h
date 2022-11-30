@@ -5,6 +5,12 @@
 #include "socket_wrapper.h"
 
 
+enum class AfInet : std::uint8_t {
+    IPv4,
+    IPv6
+};
+
+
 class HttpStream {
 private:
     int sockfd;
