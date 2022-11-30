@@ -1,10 +1,7 @@
 #pragma once
 
-#include "uri.h"
-#include <netinet/in.h>
+#include "includes.h"
 
-#include <string>
-#include <unistd.h> // close
 
 class HttpStream {
   private:
@@ -43,7 +40,7 @@ class HttpStream {
  * @param n The number of bytes to write from the buffer to the socket descriptor.
  * @return The number of bytes written or -1 on error.
  */
-ssize_t write_n_bytes(int sockfd, const char* buffer, size_t n);
+ssize_t write_n_bytes(int sockfd, const std::string send_buff, size_t n);
 
 
 /**

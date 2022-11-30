@@ -1,13 +1,6 @@
 #include "cpprequest.h"
-#include "response.h"
-#include "socket_io.h"
-#include "socket_util.h"
-#include "error.h"
 
-#include <algorithm>
-#include <stdio.h>
-#include <iostream>
-#include <string.h>
+#include "includes.h"
 
 
 static std::string printable_http_version(cppr::HttpVersion http_version) {
@@ -115,7 +108,7 @@ ssize_t cppr::Get::request(cppr::Response &response) {
 
   // TODO: change this to a std::string?
   char response_buffer[65535];
-  bzero(&response_buffer, sizeof(response_buffer));
+  memset(&response_buffer, 0, sizeof(response_buffer));
 
   HttpStream stream{ this->uri };
   stream.init();
@@ -152,7 +145,7 @@ ssize_t  cppr::Post::request(cppr::Response &response) {
 
   // TODO: change this to a std::string?
   char response_buffer[65535];
-  bzero(&response_buffer, sizeof(response_buffer));
+  memset(&response_buffer, 0, sizeof(response_buffer));
 
   HttpStream stream{ this->uri };
   stream.init();

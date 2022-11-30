@@ -1,22 +1,18 @@
 #pragma once
 
-#include "response.h" // cppr::Response
-#include "uri.h"      // cppr::Uri
+#include "includes.h"
 
-#include <string>
-#include <vector>
-#include <utility>    // std::pair
+namespace cppr
+{
+    BOOL LoadDLLs(void);
 
-
-namespace cppr {
-
-  enum class HttpVersion: std::uint8_t {
-    ZeroDotNine,
-    OneDotZero,
-    OneDotOne,
-    TwoDotZero,
-    ThreeDotZero
-  };
+    enum class HttpVersion: std::uint8_t {
+        ZeroDotNine,
+        OneDotZero,
+        OneDotOne,
+        TwoDotZero,
+        ThreeDotZero
+    };
 
 
   // TODO: move socket interface to another file
@@ -74,7 +70,7 @@ namespace cppr {
       Get(std::string const uri, int const port) : Request(uri, "GET", port) { ; }
       Get(std::string const uri, int const port, cppr::HttpVersion const version) : Request(uri, "GET", port, version) { ; }
 
-      ssize_t request(cppr::Response &response);
+      ssize_t request(cppr::Response &response) override;
 
       virtual ~Get() = default;
   }; // class Get
@@ -88,10 +84,8 @@ namespace cppr {
       Post(std::string const uri, int const port) : Request(uri, "POST", port) { ; }
       Post(std::string const uri, int const port, cppr::HttpVersion const version) : Request(uri, "POST", port, version) { ; }
 
-      ssize_t request(cppr::Response &response);
+      ssize_t request(cppr::Response &response) override;
 
       virtual ~Post() = default;
   }; // class Post
-
-
 }

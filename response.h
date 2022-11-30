@@ -1,15 +1,13 @@
 #pragma once
 
-#include <cstddef>
-#include <string>
-#include <vector>
-#include <utility>
+#include "includes.h"
 
 
 namespace cppr {
 
   using Header = std::pair<std::string, std::string>;
   using Headers = std::vector<Header>;
+
 
   class Response {
     private:

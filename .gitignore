@@ -1,4 +1,9 @@
 *.o
+*.obj
 *.a
 *.so
 *.swp
+*.lib
+*.pdb
+
+.vs
