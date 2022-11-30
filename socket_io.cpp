@@ -18,10 +18,10 @@ ssize_t HttpStream::init() {
   this->serv_addr.sin_family = AF_INET;
   this->serv_addr.sin_port = Htons(atoi(this->port.c_str()));
 
-  this->serv_addr.sin_addr.s_addr = finet_addr(this->host.c_str());
+  this->serv_addr.sin_addr.s_addr = Inet_addr(this->host.c_str());
 
   // TODO: write socket wrapper functions to handle error checking
-  if (fconnect(this->sockfd, (struct sockaddr *) &(this->serv_addr), sizeof(this->serv_addr)) < 0) {
+  if (Connect(this->sockfd, (struct sockaddr *) &(this->serv_addr), sizeof(this->serv_addr)) < 0) {
     std::cout << "ERROR connecting";
     return -1;
   }
