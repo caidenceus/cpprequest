@@ -1,5 +1,6 @@
 #pragma once
 
+#include "definition.h"
 #include "includes.h"
 
 namespace cppr
@@ -14,6 +15,56 @@ namespace cppr
     BOOL LoadDLLs(void);
 #endif // if defined(_WIN32) || defined(__CYGWIN__)
 
+    // TODO: put this in error.h
+    class ParseError final : public std::logic_error {
+    public:
+        using std::logic_error::logic_error;
+    };
+
+
+    // RFC 3986 Section 3
+    struct Uri final {
+        std::string scheme;
+        std::string user;
+        std::string password;
+        std::string host;
+        std::string port;
+        std::string path;
+        std::string query;
+        std::string fragment;
+    };
+
+
+    Uri parse_uri(std::string uri, std::string port);
+
+
+    using Header = std::pair<std::string, std::string>;
+    using Headers = std::vector<Header>;
+
+
+    class Response {
+    private:
+        size_t content_length = 0;
+
+    public:
+        std::string version;
+        int status = -1;
+        Headers headers;
+        std::string raw;
+
+        Response() = default;
+        Response(const Response&) = default;
+        Response(Response&&) = default;
+        Response& operator=(Response&&) = default;
+        ~Response() = default;
+    };
+
+
+    void parse_response_status_code(Response& response);
+    void parse_response_http_version(Response& response);
+    void parse_response_headers(Response& response);
+
+
     enum class HttpVersion: std::uint8_t {
         ZeroDotNine,
         OneDotZero,
@@ -23,77 +74,95 @@ namespace cppr
     };
 
 
-  // TODO: move socket interface to another file
-  enum class AfInet: std::uint8_t {
-    IPv4,
-    IPv6
-  };
+    // TODO: move socket interface to another file
+    enum class AfInet: std::uint8_t {
+        IPv4,
+        IPv6
+    };
 
 
-  using Header = std::pair<std::string, std::string>;
-  using Headers = std::vector<Header>;
+    class Request {
+        protected:
+            Uri uri;
+            std::string method;
+            HttpVersion http_version;
+            Headers headers;
+
+            void write_request_header(std::string &request_buffer);
+
+        public:
+            Request(std::string const uri,
+                std::string const method,
+                int const port = 80,
+                HttpVersion const http_version = HttpVersion::OneDotOne)
+            : uri{cppr::parse_uri(uri, std::to_string(port))},
+                method{method},
+                http_version{http_version}
+            { ; }
+
+            Request(std::string const uri,
+                std::string const method,
+                HttpVersion const version)
+            : Request(uri, method, 80, version) { ; }
+
+            /**
+            * @brief Send this request on the wire and fill out a Response object.
+            *
+            * @param response The response object to store response data in.
+            */
+            virtual ssize_t request(Response &response) = 0;
+            void add_header(std::string key, std::string value);
+
+            virtual ~Request() = default;
+    }; // class Request
 
 
-  class Request {
-    protected:
-      Uri uri;
-      std::string method;
-      HttpVersion http_version;
-      Headers headers;
+    class Get final: public Request {
+        public:
+            Get(std::string const uri) : Request(uri, "GET") { ; }
+            Get(std::string const uri, HttpVersion const version) : Request(uri, "GET", version) { ; }
 
-      void write_request_header(std::string &request_buffer);
+            Get(std::string const uri, int const port) : Request(uri, "GET", port) { ; }
+            Get(std::string const uri, int const port, HttpVersion const version) : Request(uri, "GET", port, version) { ; }
 
-    public:
-      Request(std::string const uri,
-              std::string const method,
-              int const port = 80,
-              HttpVersion const http_version = HttpVersion::OneDotOne)
-      : uri{cppr::parse_uri(uri, std::to_string(port))},
-        method{method},
-        http_version{http_version}
-      { ; }
+            ssize_t request(cppr::Response &response) override;
 
-      Request(std::string const uri,
-              std::string const method,
-              HttpVersion const version)
-      : Request(uri, method, 80, version) { ; }
-
-      /**
-       * @brief Send this request on the wire and fill out a Response object.
-       *
-       * @param response The response object to store response data in.
-       */
-      virtual ssize_t request(cppr::Response &response) = 0;
-      void add_header(std::string key, std::string value);
-
-      virtual ~Request() = default;
-  }; // class Request
+            virtual ~Get() = default;
+    }; // class Get
 
 
-  class Get final: public Request {
-    public:
-      Get(std::string const uri) : Request(uri, "GET") { ; }
-      Get(std::string const uri, cppr::HttpVersion const version) : Request(uri, "GET", version) { ; }
+    class Post final: public Request {
+        public:
+            Post(std::string const uri) : Request(uri, "POST") { ; }
+            Post(std::string const uri, HttpVersion version) : Request(uri, "POST", version) { ; }
 
-      Get(std::string const uri, int const port) : Request(uri, "GET", port) { ; }
-      Get(std::string const uri, int const port, cppr::HttpVersion const version) : Request(uri, "GET", port, version) { ; }
+            Post(std::string const uri, int const port) : Request(uri, "POST", port) { ; }
+            Post(std::string const uri, int const port, HttpVersion const version) : Request(uri, "POST", port, version) { ; }
 
-      ssize_t request(cppr::Response &response) override;
+            ssize_t request(Response &response) override;
 
-      virtual ~Get() = default;
-  }; // class Get
+            virtual ~Post() = default;
+    }; // class Post
 
 
-  class Post final: public Request {
-    public:
-      Post(std::string const uri) : Request(uri, "POST") { ; }
-      Post(std::string const uri, cppr::HttpVersion version) : Request(uri, "POST", version) { ; }
+    namespace error {
 
-      Post(std::string const uri, int const port) : Request(uri, "POST", port) { ; }
-      Post(std::string const uri, int const port, cppr::HttpVersion const version) : Request(uri, "POST", port, version) { ; }
+        class RequestError final : public std::logic_error {
+        public:
+            using std::logic_error::logic_error;
+        };
 
-      ssize_t request(cppr::Response &response) override;
 
-      virtual ~Post() = default;
-  }; // class Post
+        class SocketIoError final : public std::runtime_error {
+        public:
+            using std::runtime_error::runtime_error;
+        };
+
+
+        class BufferOverflowError final : public std::overflow_error {
+        public:
+            using std::overflow_error::overflow_error;
+        };
+
+    }
 }

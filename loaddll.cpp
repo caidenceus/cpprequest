@@ -1,26 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <malloc.h>
-#include <winsock2.h>
-#include <windows.h>
-#include <wininet.h>
-#include <windns.h>
-#include <iphlpapi.h>
-#include <lm.h>
-#include <lmat.h>
-#include <io.h>
-#include <fcntl.h>
-#include <tchar.h>
-#include <tlhelp32.h>
-#include <assert.h>
-#include <sqlext.h>
-#include <vfw.h>
-#include <shlobj.h>
-#include <ntsecapi.h>
-
 #include "loaddll.h"
-#include "cpprequest.h"
 
 WSAS fWSAStartup;
 WSASo fWSASocket;

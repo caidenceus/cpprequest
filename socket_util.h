@@ -1,6 +1,6 @@
 #pragma once
 
-#include "definition.h"
+#include "cpprequest.h"
 
 // TODO: investigate using std::string rather than char pointers as arguments
 /**

@@ -1,17 +1,19 @@
 #pragma once
 
+#include "definition.h"
 #include "includes.h"
+#include "socket_wrapper.h"
 
 
 class HttpStream {
-  private:
+private:
     int sockfd;
     struct sockaddr_in serv_addr;
 
     std::string host;
     std::string port;
 
-  public:
+public:
     HttpStream(cppr::Uri uri) : host{uri.host}, port{uri.port} { ; }
 
     // Create the sockfd and fill out serv_addr

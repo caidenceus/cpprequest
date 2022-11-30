@@ -1,11 +1,11 @@
-#ifndef DOMINUS_DEFINITIONS_H__
-#define DOMINUS_DEFINITIONS_H__
+#pragma once
 
-#ifdef _WIN32
-#if defined(_MSC_VER)
+#if defined(_WIN32) || defined(__CYGWIN__)
 #include <BaseTsd.h>
-#endif // defined(_MSC_VER)
+typedef __int16 int16_t;
+typedef unsigned __int16 uint16_t;
+typedef __int32 int32_t;
+typedef unsigned __int32 uint32_t;
+typedef uint32_t in_addr_t;
 typedef SSIZE_T ssize_t;
-#endif // ifndef _WIN32
-
-#endif // ifndef DOMINUS_DEFINITIONS_H__
+#endif // if defined(_WIN32) || defined(__CYGWIN__)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cpprequest.h"
+
 // ws2_32.dll function variables
 typedef int (__stdcall *WSAS)(WORD, LPWSADATA);
 typedef SOCKET (__stdcall *WSASo)(int, int, int, LPWSAPROTOCOL_INFO, GROUP, DWORD);

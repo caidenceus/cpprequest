@@ -1,5 +1,5 @@
 # Misc
- - [ ] Remove adjunct includes
+ - [X] Remove adjunct includes
  - [ ] Directory structure should have src/ include/ and bib/ directiroes
 
 # General

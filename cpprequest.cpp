@@ -1,4 +1,5 @@
 #include "cpprequest.h"
+#include "socket_io.h"
 
 
 static std::string printable_http_version(cppr::HttpVersion http_version) {
