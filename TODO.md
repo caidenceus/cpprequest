@@ -44,7 +44,7 @@
 
 # =========================== End Sprint 1 ===========================
 # =========================== Begin Sprint 2 ===========================
-## Add request methods for all HTTP/1.1 versions
+## Add request methods for all HTTP/1.1 versions with compliance with RFC 2616
 
 # =========================== End Sprint 2 ===========================
 # =========================== Begin Sprint 3 ===========================

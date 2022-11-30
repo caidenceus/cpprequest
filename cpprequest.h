@@ -15,7 +15,21 @@ namespace cppr
     BOOL LoadDLLs(void);
 #endif // if defined(_WIN32) || defined(__CYGWIN__)
 
+    /* Begin common definitions */
+    enum class HttpVersion : std::uint8_t {
+        NoHttp,
+        ZeroDotNine,
+        OneDotZero,
+        OneDotOne,
+        TwoDotZero,
+        ThreeDotZero
+    };
 
+    using Header = std::pair<std::string, std::string>;
+    using Headers = std::vector<Header>;
+    /* End common definitions */
+
+    /* Begin URI definitions */
     // RFC 3986 Section 3
     struct Uri final {
         std::string scheme;
@@ -28,23 +42,22 @@ namespace cppr
         std::string fragment;
     };
 
-
     Uri parse_uri(std::string uri, std::string port);
+    /* End URI definitions */
 
+    /* Begin response definitions */
+    // TODO: make http_version HttpVersion rather than std::string
+    struct StatusLine final {
+        HttpVersion http_version;
+        ssize_t status_code;
+        std::string reason_phrase;
+    };
 
-    using Header = std::pair<std::string, std::string>;
-    using Headers = std::vector<Header>;
-
-
-    class Response {
-    private:
-        size_t content_length = 0;
-
-    public:
-        std::string version;
-        int status = -1;
-        Headers headers;
-        std::string raw;
+    struct Response final {
+        StatusLine status_line{ HttpVersion::NoHttp, -1, "error"};
+        Headers headers{};
+        size_t content_length{ 0 };
+        std::string raw{};
 
         Response() = default;
         Response(const Response&) = default;
@@ -53,19 +66,10 @@ namespace cppr
         ~Response() = default;
     };
 
-
     void parse_response_status_code(Response& response);
     void parse_response_http_version(Response& response);
     void parse_response_headers(Response& response);
-
-
-    enum class HttpVersion: std::uint8_t {
-        ZeroDotNine,
-        OneDotZero,
-        OneDotOne,
-        TwoDotZero,
-        ThreeDotZero
-    };
+    /* End response definitions */
 
 
     class Request {
