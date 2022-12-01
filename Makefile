@@ -4,13 +4,18 @@ LIB = ./
 SRC = ./src/
 CFLAGS = -Wall -Wextra -Werror -std=c++17
 INCLUDE = -I$(SRC)
-HEADERS = config.h cpprequest.h definition.h includes.h socket_io.h socket_util.h socket_wrapper.h utility.h
+HEADERS = $(SRC)config.h $(SRC)cpprequest.h $(SRC)definition.h $(SRC)includes.h $(SRC)socket_io.h $(SRC)socket_util.h $(SRC)socket_wrapper.h $(SRC)utility.h
+OBJS = $(BIN)cpprequest.o $(BIN)response.o $(BIN)socket_io.o $(BIN)socket_util.o $(BIN)socket_wrapper.o $(BIN)uri.o $(BIN)utility.o
 
-libcpprequest.a: $(BIN)*.o
+
+libcpprequest.a: $(OBJS)
+	mv *.o $(BIN)
 	ar cr $(LIB)$@ $^
+
 
 $(BIN)%.o: $(SRC)%.cpp $(HEADERS)
 	$(CC) -std=c++17 $(INCLUDE) -c $<
+
 
 .PHONY: clean
 clean:
