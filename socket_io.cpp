@@ -1,3 +1,4 @@
+#include "config.h" // HTTP_BUFF_SIZE
 #include "socket_io.h"
 
 

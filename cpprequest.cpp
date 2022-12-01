@@ -1,3 +1,4 @@
+#include "config.h"
 #include "cpprequest.h"
 #include "socket_io.h"
 
@@ -101,53 +102,53 @@ void cppr::Request::write_request_header(std::string &request_buffer) {
 
 
 ssize_t cppr::Get::request(cppr::Response &response) {
-  ssize_t error;
-  std::string request_buffer;
-  this->write_request_header(request_buffer);
+    ssize_t error;
+    std::string request_buffer;
+    char response_buffer[HTTP_BUFF_SIZE];
+    this->write_request_header(request_buffer);
 
-  // TODO: change this to a std::string?
-  char response_buffer[65535];
-  memset(&response_buffer, 0, sizeof(response_buffer));
-
-  HttpStream stream{ this->uri };
-  stream.init();
-  error = stream.data_stream(request_buffer, response_buffer, sizeof(response_buffer));
+    HttpStream stream{ this->uri };
+    stream.init();
+    error = stream.data_stream(request_buffer, response_buffer, sizeof(response_buffer));
   
-  if (error != 0) {
-    throw cppr::error::SocketIoError{ "Socket error: unable to write response buffer.\n" };
-    return -1;
-  }
+    if (error != 0) {
+        throw cppr::error::SocketIoError{ "Socket error: unable to write response buffer.\n" };
+        return -1;
+    }
   
-  response.raw = std::string{ response_buffer };
-  response.parse_response();
+    response.raw = std::string{ response_buffer };
+    response.parse_response();
 
-  return 0;
+    return response.status_line.status_code;
 }
 
 
-// TODO: return response code if applicable, -1 otherwise
 // TODO: add error checking
-ssize_t  cppr::Post::request(cppr::Response &response) {
-  this->add_header("Content-Type", "application/x-www-form-urlencoded");
-  std::string content_length = std::to_string(this->uri.query.length());
-  this->add_header("Content-Length", content_length);
+ssize_t  cppr::Post::request(cppr::Response &response)
+{
+    int error;
+    std::string content_length = std::to_string(this->uri.query.length());
+    std::string request_buffer;
+    char response_buffer[HTTP_BUFF_SIZE];
 
-  std::string request_buffer;
-  this->write_request_header(request_buffer);
+    this->add_header("Content-Type", "application/x-www-form-urlencoded");
+    this->add_header("Content-Length", content_length);
+    this->write_request_header(request_buffer);
 
-  //TODO: write the body
-  request_buffer += this->uri.query + "\r\n";
+    //TODO: write the body
+    request_buffer += this->uri.query + "\r\n";
+    HttpStream stream{ this->uri };
+  
+    stream.init();
+    error = stream.data_stream(request_buffer, response_buffer, sizeof(response_buffer));
 
-  std::cout << request_buffer + "\n\n";
+    if (error != 0) {
+        throw cppr::error::SocketIoError{ "Socket error: unable to write response buffer.\n" };
+        return -1;
+    }
 
-  // TODO: change this to a std::string?
-  char response_buffer[65535];
-  memset(&response_buffer, 0, sizeof(response_buffer));
+    response.raw = std::string{ response_buffer };
+    response.parse_response();
 
-  HttpStream stream{ this->uri };
-  stream.init();
-  stream.data_stream(request_buffer, response_buffer, sizeof(response_buffer));
-  std::cout << response_buffer;
-  std::cout << "\n\n";
-  return 0;
+    return response.status_line.status_code;
 }

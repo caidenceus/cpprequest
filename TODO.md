@@ -1,9 +1,10 @@
-# =========================== Begin Sprint 1 ===========================
-## Create cross-platform API for sending GET and POST requests
+# =========================== Begin Sprint 1 11/28/2022 ===========================
+## Create cross-platform API for sending primitive GET and POST requests
 
 ### Misc
  - [X] Remove adjunct includes
  - [ ] Directory structure should have src/ include/ and bib/ directiroes
+ - [ ] Make spacing consistent. Four spaces per indentation.
 
 ### General
 - [ ] Fix -Weffc++ errors (gcc)
@@ -17,9 +18,10 @@
 ### Response
 - [X] Add response structure
 - [X] Move Response struct into separate file
-- [ ] Figure out good buffer size for response or investigate using std::string
-- [ ] Should user specify buffer size in config.h?
-- [ ] Make compliant with RFC 2616 section 5
+- [ ] Figure out good buffer size for response
+- [ ] Should user specify buffer size in config.h? A: Yes, HTTP_BUFF_SIZE
+- [X] Separate status line, header fields, and response body in Response object
+- [ ] Add error checking to parse_response
 
 ### Socket
 - [X] Move internet protocol structures into separate file
@@ -31,19 +33,18 @@
 - [ ] Abstract OS specific errors into common cppr::error errors
 
 ### String parsing
-- [ ] Function to parse response HTTP version
-- [ ] Function to parse response for status code
-- [ ] Function to parse response for headers
-- [ ] Function to parse response for content length
+- [X] Function to parse response HTTP version
+- [X] Function to parse response for status code
+- [X] Function to parse response for headers
+- [X] Function to parse response for content length
 
 ### Request
 - [X] Arguments to request functions to fill out Response by reference
-- [ ] Make Get::request() fill out a response object
+- [X] Make Get::request() fill out a response object
 - [ ] Make Post::request() fill out a response object
-- [ ] Make compliant with RFC 2616 section 6
 
-# =========================== End Sprint 1 ===========================
-# =========================== Begin Sprint 2 ===========================
+# =========================== End Sprint 1 12/04/2022 ===========================
+# =========================== Begin Sprint 2 12/06/2022 ===========================
 ## Add request methods for all HTTP/1.1 versions with compliance with RFC 2616
 
 # =========================== End Sprint 2 ===========================
