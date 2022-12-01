@@ -32,14 +32,14 @@ namespace cppr
     /* Begin URI definitions */
     // RFC 3986 Section 3
     struct Uri final {
-        std::string scheme;
-        std::string user;
-        std::string password;
-        std::string host;
-        std::string port;
-        std::string path;
-        std::string query;
-        std::string fragment;
+        std::string scheme{ };
+        std::string user{ };
+        std::string password{ };
+        std::string host{ };
+        std::string port{ };
+        std::string path{ };
+        std::string query{ };
+        std::string fragment{ };
     };
 
     Uri parse_uri(std::string uri, std::string port);
@@ -86,7 +86,8 @@ namespace cppr
             HttpVersion const http_version = HttpVersion::OneDotOne)
         : uri{parse_uri(uri, std::to_string(port))},
             method{method},
-            http_version{http_version}
+            http_version{http_version},
+	    headers{Headers{}}
         { ; }
 
         Request(std::string const uri,

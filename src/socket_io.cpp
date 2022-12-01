@@ -40,7 +40,7 @@ ssize_t HttpStream::data_stream(std::string write_buffer, char* read_buffer, siz
     }
 
     total = read_buff_size - 1;
-    error = received = read_n_bytes(this->sockfd, read_buffer, total);
+    error = received = read_n_bytes(this->sockfd, read_buffer, (size_t)total);
 
     if (error == -1) {
         cppr::error::SocketIoError{ "Socket error: Unable to read from the HTTP stream.\n" };

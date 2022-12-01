@@ -20,7 +20,10 @@ private:
     std::string port;
 
 public:
-    HttpStream(cppr::Uri uri) : host{uri.host}, port{uri.port} { ; }
+    HttpStream(cppr::Uri uri) 
+        : sockfd{ -1 }, serv_addr{  },
+          host{uri.host}, port{uri.port}
+    { ; }
 
     // Create the sockfd and fill out serv_addr
     ssize_t init();

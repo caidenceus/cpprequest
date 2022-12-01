@@ -11,15 +11,15 @@
 ## Create cross-platform API for sending primitive GET and POST requests
 
 ### Misc
- - [X] Remove adjunct includes
- - [x] Directory structure should have src/ include/ and bin/ directiroes
- - [X] Make spacing consistent. Four spaces per indentation.
- - [ ] Update makefiles to accomodate for new directory structure
- - [X] Add PLACEHOLDER.txt in bin/ so that bin/ is added to github project 
+- [X] Remove adjunct includes
+- [x] Directory structure should have src/ include/ and bin/ directiroes
+- [X] Make spacing consistent. Four spaces per indentation.
+- [X] Update makefiles to accomodate for new directory structure
+- [X] Add PLACEHOLDER.txt in bin/ so that bin/ is added to github project 
 
 ### General
-- [ ] Fix -Weffc++ errors (gcc)
-- [ ] Fix -Wsign-conversion errors (gcc)
+- [X] Fix -Weffc++ errors (gcc)
+- [X] Fix -Wsign-conversion errors (gcc)
 - [X] Fix /W4 errors (cl)
 - [X] Add README.md
 - [X] Create an include.h that has all includes based on OS
