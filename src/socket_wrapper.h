@@ -13,3 +13,5 @@ ssize_t Send(int sockfd, const char* buf, size_t len, int flags);
 ssize_t Recv(int sockfd, char* buf, size_t len, int flags);
 
 int Socket(int domain, int type, int protocol);
+
+int Close(int fd);

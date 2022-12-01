@@ -4,6 +4,7 @@ pushd bin
 cl^
   -Zi^
   -EHsc^
+  -W4^
   -I "../src/"^
   -c^
   ../src/*.cpp &&^

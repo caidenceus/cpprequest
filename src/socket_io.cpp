@@ -16,7 +16,7 @@ ssize_t HttpStream::init()
 
     // TODO: protocol agnostic
     this->serv_addr.sin_family = AF_INET;
-    this->serv_addr.sin_port = Htons(atoi(this->port.c_str()));
+    this->serv_addr.sin_port = Htons((uint16_t)atoi(this->port.c_str()));
 
     this->serv_addr.sin_addr.s_addr = Inet_addr(this->host.c_str());
 
@@ -32,7 +32,7 @@ ssize_t HttpStream::init()
 ssize_t HttpStream::data_stream(std::string write_buffer, char* read_buffer, size_t read_buff_size)
 {
     int total, received, error;
-    error = write_n_bytes(this->sockfd, write_buffer.c_str(), strlen(write_buffer.c_str()));
+    error = write_n_bytes(this->sockfd, write_buffer.c_str(), write_buffer.length());
 
     if (error == -1) {
         cppr::error::SocketIoError{ "Socket error: Unable to write to the HTTP stream.\n" };
@@ -61,7 +61,7 @@ ssize_t HttpStream::data_stream(std::string write_buffer, char* read_buffer, siz
 ssize_t write_n_bytes(int sockfd, const std::string send_buff, size_t n)
 {
     int bytes_written{ 0 };
-    bytes_written = Send(sockfd, send_buff.c_str(), (int)send_buff.length(), 0);
+    bytes_written = Send(sockfd, send_buff.c_str(), n, 0);
     return bytes_written;
 }
 

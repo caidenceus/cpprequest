@@ -66,20 +66,20 @@ static bool valid_method_per_http_version(cppr::HttpVersion version, std::string
 
 void cppr::Request::write_request_header(std::string &request_buffer)
 {
-    std::string http_version = printable_http_version(this->http_version);  
+    std::string http_version_str = printable_http_version(this->http_version);  
 
     if (valid_method_per_http_version(this->http_version, this->method)) {
         request_buffer += this->method + " ";
     } else {
         std::string err{
             "WARNING: " + this->method + " is an invalid method for " +
-            (http_version == "" ? "HTTP/0.9" : http_version) + ".\n"
+            (http_version_str == "" ? "HTTP/0.9" : http_version_str) + ".\n"
         };
         throw cppr::error::RequestError{err};
     }
 
     request_buffer += this->uri.path + " ";
-    request_buffer += http_version + "\r\n";
+    request_buffer += http_version_str + "\r\n";
   
     // HTTP/0.9 does not support headers
     if (this->http_version < cppr::HttpVersion::OneDotZero) {

@@ -63,3 +63,13 @@ int Socket(int domain, int type, int protocol)
     return socket(domain, type, protocol);
 #endif // if defined(_WIN32) || defined(__CYGWIN__)
 }
+
+
+int Close(int fd)
+{
+#if defined(_WIN32) || defined(__CYGWIN__)
+	return fclosesocket(fd);
+#else
+	return close(fd);
+#endif // if defined(_WIN32) || defined(__CYGWIN__)
+}
