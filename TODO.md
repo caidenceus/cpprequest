@@ -11,8 +11,10 @@
 
 ### Misc
  - [X] Remove adjunct includes
- - [ ] Directory structure should have src/ include/ and bin/ directiroes
+ - [x] Directory structure should have src/ include/ and bin/ directiroes
  - [X] Make spacing consistent. Four spaces per indentation.
+ - [ ] Update makefiles to accomodate for new directory structure
+ - [ ] Add PLACEHOLDER.txt in bin/ so that bin/ is added to github project 
 
 ### General
 - [ ] Fix -Weffc++ errors (gcc)

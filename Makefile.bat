@@ -1,17 +1,15 @@
-REM to link to this library include the following header and cl commands
-REM #include "cpprequest.h"
-REM cl -Zi -EHsc -I "path to cpprequest.h" -c *.cpp && link *.obj cpprequest.lib /LIBPATH:"path to cpprequest.lib"
-
 @echo off
-pushd build
+pushd bin
 
 cl^
   -Zi^
   -EHsc^
-  -I "."^
+  -I "../src/"^
   -c^
-  *.cpp &&^
+  ../src/*.cpp &&^
 lib^
   *.obj
+
+move *.lib ../
 
 popd
