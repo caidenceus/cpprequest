@@ -2,19 +2,22 @@
 
 
 // RFC 7230, 3.2.3. WhiteSpace
-bool is_white_space(char const c) {
+bool is_white_space(char const c)
+{
     return c == 0x20 || c == 0x09; // space or tab
 }
 
 
 // RFC 5234, Appendix B.1. Core Rules
-bool is_digit(char const c) {
+bool is_digit(char const c)
+{
     return c >= 0x30 && c <= 0x39; // 0 - 9
 }
 
 
 // RFC 5234, Appendix B.1. Core Rules
-bool is_alpha(char const c) {
+bool is_alpha(char const c)
+{
     return
         (c >= 0x61 && c <= 0x7A) || // a - z
         (c >= 0x41 && c <= 0x5A); // A - Z
@@ -22,14 +25,16 @@ bool is_alpha(char const c) {
 
 
 // TODO: list all valid url characters
-static bool valid_url_query_char(char const c) {
+static bool valid_url_query_char(char const c)
+{
     return
         (is_alpha(c) || is_digit(c)) ||
         (c == '+' || c == '.' || c == '-' || c == '_') ||
         (c == '~' || c == '=');
 }
 
-std::string url_encode(std::string const query) {
+std::string url_encode(std::string const query)
+{
     // TODO: move to outer scope?
     std::unordered_map<char, std::string> pe;
 

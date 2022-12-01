@@ -3,105 +3,111 @@
 #include "socket_io.h"
 
 
-static std::string printable_http_version(cppr::HttpVersion http_version) {
-  std::string rtn;
+static std::string printable_http_version(cppr::HttpVersion http_version)
+{
+    std::string rtn{ "HTTP / 1.1" };
 
-  switch (http_version) {
-    // If no version number is spcified, HTTP/0.9 is used
-    case cppr::HttpVersion::ZeroDotNine : return rtn = "";
-      break;
-    case cppr::HttpVersion::OneDotZero : return rtn = "HTTP/1.0";
-      break;
-    case cppr::HttpVersion::OneDotOne : return rtn = "HTTP/1.1";
-      break;
-    case cppr::HttpVersion::TwoDotZero : return rtn = "HTTP/2.0";
-      break;
-    case cppr::HttpVersion::ThreeDotZero : return rtn = "HTTP/3.0";
-      break;
-    default:
-      return rtn + "1.1";
-  }
+    switch (http_version) {
+        // If no version number is spcified, HTTP/0.9 is used
+        case cppr::HttpVersion::ZeroDotNine : rtn = "";
+            break;
+        case cppr::HttpVersion::OneDotZero : rtn = "HTTP/1.0";
+            break;
+        case cppr::HttpVersion::OneDotOne : rtn = "HTTP/1.1";
+            break;
+        case cppr::HttpVersion::TwoDotZero : rtn = "HTTP/2.0";
+            break;
+        case cppr::HttpVersion::ThreeDotZero : rtn = "HTTP/3.0";
+            break;
+        default :
+            break;
+    }
+    return rtn;
 }
 
 
 // TODO: add header checking per http version
-void cppr::Request::add_header(std::string const key, std::string const value) {
-  cppr::Header new_header;
-  new_header.first = key;
-  new_header.second = value;
-  this->headers.push_back(new_header);
+void cppr::Request::add_header(std::string const key, std::string const value)
+{
+    cppr::Header new_header;
+    new_header.first = key;
+    new_header.second = value;
+    this->headers.push_back(new_header);
 }
 
 
-static bool valid_method_per_http_version(cppr::HttpVersion version, std::string verb) {
-  // TODO: move these to global scope
-  std::vector<std::string> validZeroDotNine =
-    { "GET" };
-  std::vector<std::string> validOneDotZero =
-    { "GET", "HEAD", "POST" };
-  std::vector<std::string> validOneDotOne = 
-    { "GET", "HEAD", "PATCH", "POST", "PUT", "OPTIONS", "DELETE" };
+static bool valid_method_per_http_version(cppr::HttpVersion version, std::string verb)
+{
+    // TODO: move these to global scope
+    std::vector<std::string> validZeroDotNine =
+        { "GET" };
+    std::vector<std::string> validOneDotZero =
+        { "GET", "HEAD", "POST" };
+    std::vector<std::string> validOneDotOne = 
+        { "GET", "HEAD", "PATCH", "POST", "PUT", "OPTIONS", "DELETE" };
 
-  // TODO: Add HTTP 2.0 and 3.0
+    // TODO: Add HTTP 2.0 and 3.0
 
-  switch (version) {
-    case cppr::HttpVersion::ZeroDotNine:
-      return (std::find(validZeroDotNine.begin(), validZeroDotNine.end(), verb) != validZeroDotNine.end());
-      break;
-    case cppr::HttpVersion::OneDotZero:
-      return (std::find(validOneDotZero.begin(), validOneDotZero.end(), verb) != validOneDotZero.end());
-      break;
-    case cppr::HttpVersion::OneDotOne:
-      return (std::find(validOneDotOne.begin(), validOneDotOne.end(), verb) != validOneDotOne.end());
-      break;
-    default:
-      return false;
-  }
+    switch (version) {
+        case cppr::HttpVersion::ZeroDotNine:
+            return (std::find(validZeroDotNine.begin(), validZeroDotNine.end(), verb) != validZeroDotNine.end());
+            break;
+        case cppr::HttpVersion::OneDotZero:
+            return (std::find(validOneDotZero.begin(), validOneDotZero.end(), verb) != validOneDotZero.end());
+            break;
+        case cppr::HttpVersion::OneDotOne:
+            return (std::find(validOneDotOne.begin(), validOneDotOne.end(), verb) != validOneDotOne.end());
+            break;
+        default :
+            return false;
+    }
 }
 
 
-void cppr::Request::write_request_header(std::string &request_buffer) {
-  std::string http_version = printable_http_version(this->http_version);  
+void cppr::Request::write_request_header(std::string &request_buffer)
+{
+    std::string http_version = printable_http_version(this->http_version);  
 
-  if (valid_method_per_http_version(this->http_version, this->method)) {
-    request_buffer += this->method + " ";
-  }
-  else {
-    std::string err{
-        "WARNING: " + this->method + " is an invalid method for " +
-        (http_version == "" ? "HTTP/0.9" : http_version) + ".\n"
-    };
-    throw cppr::error::RequestError{err};
-  }
+    if (valid_method_per_http_version(this->http_version, this->method)) {
+        request_buffer += this->method + " ";
+    } else {
+        std::string err{
+            "WARNING: " + this->method + " is an invalid method for " +
+            (http_version == "" ? "HTTP/0.9" : http_version) + ".\n"
+        };
+        throw cppr::error::RequestError{err};
+    }
 
-  request_buffer += this->uri.path + " ";
-  request_buffer += http_version + "\r\n";
+    request_buffer += this->uri.path + " ";
+    request_buffer += http_version + "\r\n";
   
-  // HTTP/0.9 does not support headers
-  if (this->http_version < cppr::HttpVersion::OneDotZero) {
+    // HTTP/0.9 does not support headers
+    if (this->http_version < cppr::HttpVersion::OneDotZero) {
+        request_buffer += "\r\n";
+        return;
+    }
+
+    bool host_header = false;
+
+    for (auto it = this->headers.begin(); it != this->headers.end(); ++it) {
+        // TODO: headers are case insensitive, cast each header to lowercase for host checking
+        if (!host_header && ( (*it).first == "Host" || (*it).first == "host" ))
+            host_header = true;
+        request_buffer += (*it).first + ": " + (*it).second + "\r\n";
+    }
+
+    // Host header required for HTTP/1.1
+    if (this->http_version == cppr::HttpVersion::OneDotOne && !host_header) {
+        request_buffer += "Host: " + this->uri.host + "\r\n";
+    }
+
+    // Required \r\n after the request headers
     request_buffer += "\r\n";
-    return;
-  }
-
-  bool host_header = false;
-
-  for (auto it = this->headers.begin(); it != this->headers.end(); ++it) {
-      // TODO: headers are case insensitive, cast each header to lowercase for host checking
-      if (!host_header && ( (*it).first == "Host" || (*it).first == "host" ))
-        host_header = true;
-      request_buffer += (*it).first + ": " + (*it).second + "\r\n";
-  }
-
-  // Host header required for HTTP/1.1
-  if (this->http_version == cppr::HttpVersion::OneDotOne && !host_header)
-    request_buffer += "Host: " + this->uri.host + "\r\n";
-
-  // Required \r\n after the request headers
-  request_buffer += "\r\n";
 }
 
 
-ssize_t cppr::Get::request(cppr::Response &response) {
+ssize_t cppr::Get::request(cppr::Response &response)
+{
     ssize_t error;
     std::string request_buffer;
     char response_buffer[HTTP_BUFF_SIZE];

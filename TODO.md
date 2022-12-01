@@ -1,10 +1,18 @@
-# =========================== Begin Sprint 1 11/28/2022 ===========================
+- TODO scrum epics
+- [ ] Create cross-platform API for sending primitive GET and POST requests
+- [ ] Add HTTP/0.9 and HTTP/1.0 compliance (RFC 1945)
+- [ ] Add Request classes for all HTTP 1.1 verbs
+- [ ] Add support for common request and response headers
+- [ ] Add GZIP Deflate compression decoding
+- [ ] Add HTTP/1.1 compliance (RFC 2616)
+
+# ====== Begin Sprint 1 11/28/2022 ======
 ## Create cross-platform API for sending primitive GET and POST requests
 
 ### Misc
  - [X] Remove adjunct includes
- - [ ] Directory structure should have src/ include/ and bib/ directiroes
- - [ ] Make spacing consistent. Four spaces per indentation.
+ - [ ] Directory structure should have src/ include/ and bin/ directiroes
+ - [X] Make spacing consistent. Four spaces per indentation.
 
 ### General
 - [ ] Fix -Weffc++ errors (gcc)
@@ -18,8 +26,8 @@
 ### Response
 - [X] Add response structure
 - [X] Move Response struct into separate file
-- [ ] Figure out good buffer size for response
-- [ ] Should user specify buffer size in config.h? A: Yes, HTTP_BUFF_SIZE
+- [X] Figure out good buffer size for response
+- [X] Should user specify buffer size in config.h? A: Yes, HTTP_BUFF_SIZE
 - [X] Separate status line, header fields, and response body in Response object
 - [ ] Add error checking to parse_response
 
@@ -27,7 +35,6 @@
 - [X] Move internet protocol structures into separate file
 - [X] Rewrite socket read function to be faster
 - [X] Rewrite socket write function to be faster
-- [ ] Move close(sockfd) from HttpStream::data_stream into a separate instance method
 - [ ] Make wrapper function for close(sockfd)
 - [ ] Add error handling to socket wrapper functions
 - [ ] Abstract OS specific errors into common cppr::error errors
@@ -41,14 +48,6 @@
 ### Request
 - [X] Arguments to request functions to fill out Response by reference
 - [X] Make Get::request() fill out a response object
-- [ ] Make Post::request() fill out a response object
+- [X] Make Post::request() fill out a response object
 
-# =========================== End Sprint 1 12/04/2022 ===========================
-# =========================== Begin Sprint 2 12/06/2022 ===========================
-## Add request methods for all HTTP/1.1 versions with compliance with RFC 2616
-
-# =========================== End Sprint 2 ===========================
-# =========================== Begin Sprint 3 ===========================
-## Add support for compression algorithms
-
-# =========================== End Sprint 3 ===========================
+# ====== End Sprint 1 12/04/2022 ======
