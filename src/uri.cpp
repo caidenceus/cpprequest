@@ -4,7 +4,7 @@
 #define NPOS std::string::npos
 
 
-static bool validUriSchemeCharacter(char const c)
+static bool valid_uri_scheme_character(char const c)
 {
     if (is_alpha(c) || is_digit(c) || c == '+' || c == '-' || c == '.')
         return true;
@@ -29,7 +29,7 @@ cppr::Uri cppr::parse_uri(std::string uri, std::string port)
         };
     }
 
-    for (; head != tail && validUriSchemeCharacter(*head); ++head)
+    for (; head != tail && valid_uri_scheme_character(*head); ++head)
         rtn.scheme.push_back(*head);
 
     std::string authority = std::string(head, tail);

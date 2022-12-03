@@ -23,7 +23,6 @@ int main() {
 
     return 0;
 }
-
 ```
 
 ## Example 2 (GET request on Linux)

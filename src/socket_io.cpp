@@ -57,7 +57,6 @@ ssize_t HttpStream::data_stream(std::string write_buffer, char* read_buffer, siz
 }
 
 
-// TODO: error handling
 ssize_t write_n_bytes(int sockfd, const std::string send_buff, size_t n)
 {
     int bytes_written{ 0 };

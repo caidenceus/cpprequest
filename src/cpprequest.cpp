@@ -26,7 +26,6 @@ static std::string printable_http_version(cppr::HttpVersion http_version)
 }
 
 
-// TODO: add header checking per http version
 void cppr::Request::add_header(std::string const key, std::string const value)
 {
     cppr::Header new_header;
@@ -38,7 +37,6 @@ void cppr::Request::add_header(std::string const key, std::string const value)
 
 static bool valid_method_per_http_version(cppr::HttpVersion version, std::string verb)
 {
-    // TODO: move these to global scope
     std::vector<std::string> validZeroDotNine =
         { "GET" };
     std::vector<std::string> validOneDotZero =
@@ -47,7 +45,6 @@ static bool valid_method_per_http_version(cppr::HttpVersion version, std::string
         { "GET", "HEAD", "PATCH", "POST", "PUT", "OPTIONS", "DELETE" };
 
     // TODO: Add HTTP 2.0 and 3.0
-
     switch (version) {
         case cppr::HttpVersion::ZeroDotNine:
             return (std::find(validZeroDotNine.begin(), validZeroDotNine.end(), verb) != validZeroDotNine.end());
@@ -80,7 +77,7 @@ void cppr::Request::write_request_header(std::string &request_buffer)
 
     request_buffer += this->uri.path + " ";
     request_buffer += http_version_str + "\r\n";
-  
+
     // HTTP/0.9 does not support headers
     if (this->http_version < cppr::HttpVersion::OneDotZero) {
         request_buffer += "\r\n";
@@ -88,7 +85,6 @@ void cppr::Request::write_request_header(std::string &request_buffer)
     }
 
     bool host_header = false;
-
     for (auto it = this->headers.begin(); it != this->headers.end(); ++it) {
         // TODO: headers are case insensitive, cast each header to lowercase for host checking
         if (!host_header && ( (*it).first == "Host" || (*it).first == "host" ))
@@ -97,7 +93,7 @@ void cppr::Request::write_request_header(std::string &request_buffer)
     }
 
     // Host header required for HTTP/1.1
-    if (this->http_version == cppr::HttpVersion::OneDotOne && !host_header) {
+    if (this->http_version <= cppr::HttpVersion::OneDotOne && !host_header) {
         request_buffer += "Host: " + this->uri.host + "\r\n";
     }
 
@@ -116,7 +112,7 @@ ssize_t cppr::Get::request(cppr::Response &response)
     HttpStream stream{ this->uri };
     stream.init();
     error = stream.data_stream(request_buffer, response_buffer, sizeof(response_buffer));
-  
+ 
     if (error != 0) {
         throw cppr::error::SocketIoError{ "Socket error: unable to write response buffer.\n" };
         return -1;
@@ -129,7 +125,6 @@ ssize_t cppr::Get::request(cppr::Response &response)
 }
 
 
-// TODO: add error checking
 ssize_t  cppr::Post::request(cppr::Response &response)
 {
     int error;
