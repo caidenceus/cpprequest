@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <style>
+            .main-section {
+                width: 80%;
+                padding-left: 10%;
+                padding-top: 16px;
+            }
+            a, a:visited {
+                text-decoration: none;
+                color: darkblue;
+            }
+            .title {
+                border-bottom: 1px solid black;  
+                padding-bottom: 6px;
+            }
+        </style>
+    </head>
+  <body>
+    <div class="main-section" id="table-of-contents">
+      <h1 class="title">Contents</h1>
+      <ul>
+        <!-- Request object constructor -->
+        <li>
+          <a href="#request-ctor">Request constructors</a>
+          <ul>
+            <li><a href="#get-ctor">GET constructors</a></li>
+            <li><a href="#post-ctor">POST constructors</a></li>
+          </ul>
+        </li>
+
+        <!-- Response object -->
+        <li><a href="#response">Response object</a></li>
+
+        <!-- HttpVersion enum -->
+        <li><a href="#http-version">HTTP version enum</a></li>
+
+        <!-- Platform specific  -->
+        <li href="#platform-specific">
+          <a href="#platform-specific">Platform specific functions</a>
+          <ul>
+              <li>
+                  <a href="#windows-platform-specific">Windows</a>
+                  <ul>
+                      <li><a href="#load-dlls">cppr::LoadDLLs function</a></li>
+                  </ul>
+              </li>
+              <li><a href="#linux-platform-specific">Linux</a></li>
+          </ul>
+        </li>
+        
+      </ul>
+    </div>
+
+    <div class="content main-section">
+        <!-- Request object constructor -->
+        <div>
+            <h2 class="title" id="request-ctor">Request constructors</h2>
+            <p>
+                GET and POST request objects can be instantiated in one of four ways:
+            </p>
+            <pre>
+                1) Passing a URI as a string to the request method constructor
+                2) Passing a URI and an HttpVersion object to the request method constructor
+                3) Passing a URI and a port number to the request method constructor
+                4) Passing a URI, port number, and an HttpVersion object to the request method constructor
+            </pre>
+            <p>
+                A URI must always be passed to a constructor. If no port is passed, the default port is set to 80. If no HttpVersion
+                object is passed, the default version is HTTP/1.1.
+            </p>
+        </div>
+
+        <!-- GET constructors -->
+        <h3 class="title" id="get-ctor">GET constructors</h3>
+        <p>
+            <!-- GET constructors Linux-->
+            The following example demonstrates the four different ways to construct a GET request object on Linux.
+            <code><pre>
+                // get_ctor_linux.cpp: This example <span style="color: red;"><b>compiles on Linux</b></span> with G++.
+                // First run the Makefile to compile cpprequest, then compile the code below.
+                // g++ -o my_program get_ctor_linux.cpp -std=c++17 -I/path/to/cpprequest/include/ -L/path/to/libcpprequest.a -lcpprequest
+            
+                #include "cpprequest.h"
+
+                int main() {
+                    // GET /public/index.php HTTP/1.1 request to 127.0.0.1:80
+                    cppr::Get req_1{ "http://127.0.0.1/public/index.php" };
+
+                    // GET /public/index.php HTTP/0.9 request to 127.0.0.1:80
+                    cppr::Get req_2{ "http://127.0.0.1/public/index.php", cppr::HttpVersion::ZeroDotNine };
+
+                    // GET /public/index.php HTTP/1.1 request to 127.0.0.1:8080
+                    cppr::Get req_2{ "http://127.0.0.1/public/index.php", 8080 };
+
+                    // GET /public/index.php HTTP/0.9 request to 127.0.0.1:8080
+                    cppr::Get req_2{ "http://127.0.0.1/public/index.php", 8080, cppr::HttpVersion::ZeroDotNine };
+        
+                    return 0;
+                }
+            </pre></code>
+            Note that the port number can also be passed in the URI by using a colon directly after the IP address / domain name
+            as follows.
+            <code><pre>
+                // GET /public/index.php HTTP/1.1 request to 127.0.0.1:8080
+                cppr::Get req{ "http://127.0.0.1:80/public/index.php" };
+            </pre></code>
+            <!-- GET constructors windows -->
+             Windows is similar, except we must also linx to and initialize Winsock.
+            <code><pre>
+                // get_ctor_windows.cpp: This example <span style="color: red;"><b>compiles on Windows</b></span> with CL.
+                // First run the Makefile.bat to compile cpprequest, then compile the code below.
+                // cl -Zi -EHsc -I"/path/to/cpprequest/include/" -c get_ctor_windows.cpp 
+                // link get_ctor_windows.obj cpprequest.lib /LIBPATH:"/path/to/cpprequest.lib"
+            
+                #include "cpprequest.h"
+
+                // Link to Winsock
+                #pragma comment(lib, "Ws2_32.lib")
+
+                int main() {
+                    BOOL ws2_lib_loaded = cppr::LoadDLLs();
+
+                    // Initialize Winsock
+                    WSADATA wsaData;
+                    int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+                    if (iResult != NO_ERROR) {
+                        wprintf(L"WSAStartup function failed with error: %d\n", iResult);
+                        return -1;
+                    }
+
+                    if (ws2_lib_loaded) {
+                        // GET /public/index.php HTTP/1.1 request to 127.0.0.1:80
+                        cppr::Get req_1{ "http://127.0.0.1/public/index.php" };
+
+                        // GET /public/index.php HTTP/0.9 request to 127.0.0.1:80
+                        cppr::Get req_2{ "http://127.0.0.1/public/index.php", cppr::HttpVersion::ZeroDotNine };
+
+                        // GET /public/index.php HTTP/1.1 request to 127.0.0.1:8080
+                        cppr::Get req_2{ "http://127.0.0.1/public/index.php", 8080 };
+
+                        // GET /public/index.php HTTP/0.9 request to 127.0.0.1:8080
+                        cppr::Get req_2{ "http://127.0.0.1/public/index.php", 8080, cppr::HttpVersion::ZeroDotNine };
+        
+                        return 0;
+                    }
+                }
+            </pre></code>
+            <span style="color: red"><b>IMPORTANT</b></span> Notice that the first line of main is a call to cppr::LoadDLLs.
+            This function loads the appropriate Winsock functions for the API to use and must ALWAYS be called before
+            making HTTP requests on Windows.
+        </p>
+
+        <!-- POST constructors -->
+        <h3 class="title" id="post-ctor">POST constructors</h3>
+        <p>
+          POST request objects can be instantiated similarly. The code following runs on Linux.
+          <code><pre>
+              // post_ctor_linux.cpp: This example <span style="color: red;"><b>compiles on Linux</b></span> with G++.
+              // First run the Makefile to compile cpprequest, then compile the code below.
+              // g++ -o my_program post_ctor_linux.cpp -std=c++17 -I/path/to/cpprequest/include/ -L/path/to/libcpprequest.a -lcpprequest
+            
+              #include "cpprequest.h"
+
+              int main() {
+                  // POST /public/index.php HTTP/1.1 request to 127.0.0.1:80
+                  cppr::Post req_1{ "http://127.0.0.1/public/index.php" };
+
+                  // POST /public/index.php HTTP/0.9 request to 127.0.0.1:80
+                  cppr::Post req_2{ "http://127.0.0.1/public/index.php", cppr::HttpVersion::ZeroDotNine };
+
+                  // POST /public/index.php HTTP/1.1 request to 127.0.0.1:8080
+                  cppr::Post req_2{ "http://127.0.0.1/public/index.php", 8080 };
+
+                  // Post /public/index.php HTTP/0.9 request to 127.0.0.1:8080
+                  cppr::Get req_2{ "http://127.0.0.1/public/index.php", 8080, cppr::HttpVersion::ZeroDotNine };
+        
+                  return 0;
+              }
+          </pre></code>
+          As with constructing GET requests, you can pass the port number in the URI to construct a POST request.
+          <code><pre>
+              // POST /public/index.php HTTP/1.1 request to 127.0.0.1:8080
+              cppr::Post req{ "http://127.0.0.1:80/public/index.php" };
+          </pre></code>
+        </p>
+    </div>
+</body>
+</html>
