@@ -2,6 +2,10 @@
 
 cpprequest is a simple cross-platform static library for sending and receiving HTTP data.
 
+## User guides
+
+User guides can be found at ./agile/deliverables/sprint_x_date/user_guide.html
+
 ## Example 1 (GET request on Linux)
 A basic example of sending a GET request with the request line "GET /public/index.php HTTP/1.1" to 127.0.0.1 on port 80.
 

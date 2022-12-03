@@ -17,45 +17,46 @@
             }
         </style>
     </head>
-  <body>
-    <div class="main-section" id="table-of-contents">
-      <h1 class="title">Contents</h1>
-      <ul>
-        <!-- Request object constructor -->
-        <li>
-          <a href="#request-ctor">Request constructors</a>
-          <ul>
-            <li><a href="#get-ctor">GET constructors</a></li>
-            <li><a href="#post-ctor">POST constructors</a></li>
-          </ul>
-        </li>
+    <body>
+        <div class="main-section" id="table-of-contents">
+            <h1 class="title">Contents</h1>
+            <ul>
+                <!-- Request object constructor -->
+                <li>
+                    <a href="#request-ctor">Request constructors</a>
+                    <ul>
+                        <li><a href="#get-ctor">GET constructors</a></li>
+                        <li><a href="#post-ctor">POST constructors</a></li>
+                    </ul>
+                </li>
 
-        <!-- Response object -->
-        <li><a href="#response">Response object</a></li>
+                <!-- Sending a request -->
+                <li><a href="#sending-a-request">Sending a request</a></li>
 
-        <!-- HttpVersion enum -->
-        <li><a href="#http-version">HTTP version enum</a></li>
+                <!-- Response object -->
+                <li><a href="#response-object">Response object</a></li>
 
-        <!-- Platform specific  -->
-        <li href="#platform-specific">
-          <a href="#platform-specific">Platform specific functions</a>
-          <ul>
-              <li>
-                  <a href="#windows-platform-specific">Windows</a>
-                  <ul>
-                      <li><a href="#load-dlls">cppr::LoadDLLs function</a></li>
-                  </ul>
-              </li>
-              <li><a href="#linux-platform-specific">Linux</a></li>
-          </ul>
-        </li>
-        
-      </ul>
-    </div>
+                <!-- HttpVersion enum -->
+                <li><a href="#http-version-enum">HttpVersion enum</a></li>
 
-    <div class="content main-section">
-        <!-- Request object constructor -->
-        <div>
+                <!-- Platform specific  -->
+                <li href="#platform-specific">
+                    <a href="#platform-specific-functions">Platform specific functions</a>
+                    <ul>
+                        <li>
+                            <a href="#windows-platform-specific">Windows</a>
+                            <ul>
+                                <li><a href="#loaddlls-function">cppr::LoadDLLs function</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#linux-platform-specific">Linux</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="content main-section">
+            <!-- Request object constructor -->
             <h2 class="title" id="request-ctor">Request constructors</h2>
             <p>
                 GET and POST request objects can be instantiated in one of four ways:
@@ -67,17 +68,18 @@
                 4) Passing a URI, port number, and an HttpVersion object to the request method constructor
             </pre>
             <p>
-                A URI must always be passed to a constructor. If no port is passed, the default port is set to 80. If no HttpVersion
-                object is passed, the default version is HTTP/1.1.
+                A URI must always be passed to a constructor. If no port is passed, the default port
+                is set to 80. If no HttpVersion object is passed, the default version is HTTP/1.1.
             </p>
-        </div>
 
-        <!-- GET constructors -->
-        <h3 class="title" id="get-ctor">GET constructors</h3>
-        <p>
-            <!-- GET constructors Linux-->
-            The following example demonstrates the four different ways to construct a GET request object on Linux.
-            <code><pre>
+            <!-- GET constructors -->
+            <h3 class="title" id="get-ctor">GET constructors</h3>
+            <p>
+                <!-- GET constructors Linux-->
+                The following example demonstrates the four different ways to construct a GET request object on Linux.
+            </p>
+            <code>
+                <pre>
                 // get_ctor_linux.cpp: This example <span style="color: red;"><b>compiles on Linux</b></span> with G++.
                 // First run the Makefile to compile cpprequest, then compile the code below.
                 // g++ -o my_program get_ctor_linux.cpp -std=c++17 -I/path/to/cpprequest/include/ -L/path/to/libcpprequest.a -lcpprequest
@@ -99,16 +101,25 @@
         
                     return 0;
                 }
-            </pre></code>
-            Note that the port number can also be passed in the URI by using a colon directly after the IP address / domain name
-            as follows.
-            <code><pre>
+            </pre>
+            </code>
+            <p>
+                Note that the port number can also be passed in the URI by using a colon directly after the IP address / domain name
+                as follows.
+            </p>
+            <code>
+                <pre>
                 // GET /public/index.php HTTP/1.1 request to 127.0.0.1:8080
                 cppr::Get req{ "http://127.0.0.1:80/public/index.php" };
-            </pre></code>
-            <!-- GET constructors windows -->
-             Windows is similar, except we must also linx to and initialize Winsock.
-            <code><pre>
+            </pre>
+            </code>
+
+            <p>
+                <!-- GET constructors windows -->
+                Windows is similar, except we must also linx to and initialize Winsock.
+            </p>
+            <code>
+                <pre>
                 // get_ctor_windows.cpp: This example <span style="color: red;"><b>compiles on Windows</b></span> with CL.
                 // First run the Makefile.bat to compile cpprequest, then compile the code below.
                 // cl -Zi -EHsc -I"/path/to/cpprequest/include/" -c get_ctor_windows.cpp 
@@ -146,45 +157,147 @@
                         return 0;
                     }
                 }
-            </pre></code>
-            <span style="color: red"><b>IMPORTANT</b></span> Notice that the first line of main is a call to cppr::LoadDLLs.
-            This function loads the appropriate Winsock functions for the API to use and must ALWAYS be called before
-            making HTTP requests on Windows.
-        </p>
+            </pre>
+            </code>
+            <p>
+                <span style="color: red"><b>IMPORTANT</b></span> Notice that the first line of main is a call to cppr::LoadDLLs.
+                This function loads the appropriate Winsock functions for the API to use and must ALWAYS be called before
+                making HTTP requests on Windows.
+            </p>
 
-        <!-- POST constructors -->
-        <h3 class="title" id="post-ctor">POST constructors</h3>
-        <p>
-          POST request objects can be instantiated similarly. The code following runs on Linux.
-          <code><pre>
-              // post_ctor_linux.cpp: This example <span style="color: red;"><b>compiles on Linux</b></span> with G++.
-              // First run the Makefile to compile cpprequest, then compile the code below.
-              // g++ -o my_program post_ctor_linux.cpp -std=c++17 -I/path/to/cpprequest/include/ -L/path/to/libcpprequest.a -lcpprequest
+            <!-- POST constructors -->
+            <h3 class="title" id="post-ctor">POST constructors</h3>
+            <p>
+                POST request objects can be instantiated similarly. The code following runs on Linux.
+            </p>
+            <code>
+                <pre>
+                // post_ctor_linux.cpp: This example <span style="color: red;"><b>compiles on Linux</b></span> with G++.
+                // First run the Makefile to compile cpprequest, then compile the code below.
+                // g++ -o my_program post_ctor_linux.cpp -std=c++17 -I/path/to/cpprequest/include/ -L/path/to/libcpprequest.a -lcpprequest
             
-              #include "cpprequest.h"
+                #include "cpprequest.h"
 
-              int main() {
-                  // POST /public/index.php HTTP/1.1 request to 127.0.0.1:80
-                  cppr::Post req_1{ "http://127.0.0.1/public/index.php" };
+                int main() {
+                    // POST /public/index.php HTTP/1.1 request to 127.0.0.1:80
+                    cppr::Post req_1{ "http://127.0.0.1/public/index.php" };
 
-                  // POST /public/index.php HTTP/0.9 request to 127.0.0.1:80
-                  cppr::Post req_2{ "http://127.0.0.1/public/index.php", cppr::HttpVersion::ZeroDotNine };
+                    // POST /public/index.php HTTP/0.9 request to 127.0.0.1:80
+                    cppr::Post req_2{ "http://127.0.0.1/public/index.php", cppr::HttpVersion::ZeroDotNine };
 
-                  // POST /public/index.php HTTP/1.1 request to 127.0.0.1:8080
-                  cppr::Post req_2{ "http://127.0.0.1/public/index.php", 8080 };
+                    // POST /public/index.php HTTP/1.1 request to 127.0.0.1:8080
+                    cppr::Post req_2{ "http://127.0.0.1/public/index.php", 8080 };
 
-                  // Post /public/index.php HTTP/0.9 request to 127.0.0.1:8080
-                  cppr::Get req_2{ "http://127.0.0.1/public/index.php", 8080, cppr::HttpVersion::ZeroDotNine };
+                    // Post /public/index.php HTTP/0.9 request to 127.0.0.1:8080
+                    cppr::Get req_2{ "http://127.0.0.1/public/index.php", 8080, cppr::HttpVersion::ZeroDotNine };
         
-                  return 0;
-              }
-          </pre></code>
-          As with constructing GET requests, you can pass the port number in the URI to construct a POST request.
-          <code><pre>
-              // POST /public/index.php HTTP/1.1 request to 127.0.0.1:8080
-              cppr::Post req{ "http://127.0.0.1:80/public/index.php" };
-          </pre></code>
-        </p>
-    </div>
-</body>
+                    return 0;
+                }
+            </pre>
+            </code>
+            <p>
+                As with constructing GET requests, you can pass the port number in the URI to construct a POST request.
+            </p>
+            <code>
+                <pre>
+                // POST /public/index.php HTTP/1.1 request to 127.0.0.1:8080
+                cppr::Post req{ "http://127.0.0.1:80/public/index.php" };
+            </pre>
+            </code>
+
+            <!-- Sending a request -->
+            <h2 class="title" id="sending-a-request">Sending a request</h2>
+            <p>
+                After a request object (cppr::Get or cppr::Post) is instantiated, you can send the request by calling
+                the object's <code>request(Response &response)</code> method as follows.
+            </p>
+            <code>
+                <pre>
+                // Response object to hold response to the request (see Response section)
+                cppr::Response response_buff;
+
+                // Construct a GET request
+                cppr::Get req{ "http://127.0.0.1/public/index.php" };
+
+                // Send the request and store the response
+                req.request(response_buff);
+            </pre>
+            </code>
+            <p>
+                Note that the details of the response are stored in a cppr::Response object which is passed as an argument
+                to the request method.
+            </p>
+
+            <!-- Response object -->
+            <h2 class="title" id="response-object">Response object</h2>
+            <p>
+                A Response object is passed to cppr::Request::request(Response &response) to be filled out as the response
+                to the request. The definition of cppr::Response is
+            </p>
+            <code>
+                <pre>
+                struct StatusLine final {
+                    std::string http_version;
+                    ssize_t status_code;
+                    std::string reason_phrase;
+                };
+
+                struct Response final {
+                    StatusLine status_line{ "error", -1, "error"};
+                    Headers headers{};  // headers is std::pair&lt;std::string, std::string&gt;
+                    size_t content_length{ 0 };
+                    std::string raw{};
+
+                    Response() = default;
+                    Response(const Response&) = default;
+                    Response(Response&&) = default;
+                    Response& operator=(Response&&) = default;
+                    ~Response() = default;
+
+                    void parse_response();
+                };
+            </pre>
+            </code>
+
+            <!-- HttpVersion enum -->
+            <h2 class="title" id="http-version-enum">HttpVersion enum</h2>
+            <p>
+                Cpprequest represents HTTP versions using the following enum
+            </p>
+            <code>
+                <pre>
+                enum class HttpVersion : std::uint8_t {
+                    NoHttp,
+                    ZeroDotNine,
+                    OneDotZero,
+                    OneDotOne,
+                    TwoDotZero,
+                    ThreeDotZero
+                };
+                </pre>
+            </code>
+
+            <!-- Platform specific functions -->
+            <h2 class="title" id="platform-specific-functions">Platform specific functions</h2>
+
+            <!-- Windows platform specific functions -->
+            <h3 class="title" id="windows-platform-specific">Windows</h3>
+                
+                <!-- LoadDLLs function -->
+                <h4 id="loaddlls-function">LoadDLLs function</h4>
+                <p>
+                <span style="color: red"><b>This function must always be run on Windows before making requests.</b></span>
+                The LoadDLLs function loads functions used by the cpprequest API from Winsock into memory. This function
+                must always be called in Windows, and it is recommended to call this function on the first line of main().
+                </p>
+                <code><pre>
+                    // Load functions from Winsock into memory
+                    BOOL ws2_lib_loaded = cppr::LoadDLLs();
+                </pre></code>
+                LoadDLLs returns true if the winsock functions are successfully loaded into memory, and false if loading
+                any of the required winsock functions fails.
+            <!-- Linux platform specific functions -->
+            <h3 class="title" id="linux-platform-specific">Linux</h3>
+        </div>
+    </body>
 </html>
