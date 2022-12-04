@@ -15,6 +15,15 @@ Notes
 		- Documentation to reflects the implementation change
 	[X] Write function and class docstrings in public library header files
 		- Functions and classes are documented using cygen style docstrings
+	[ ] Move errors out of cppr, they should be in a separate file/namespace
+		- error.h and error.cpp contain all errors currently in cppr
+		- Errors have been removed from cppr and resice in cppr_error
+	[ ] Operating system agnostic get last error function
+		- On Linux returns errno and on windows returns WSAGetLastError
+		- This function lives in cppr_error
+    [ ] Remove duplicate header files
+		- Four header files live in ./include/ as well as ./ remove all non public headers from ./include/
+		- Remove public facing headers from ./
 
 ### Misc
 	[ ] Change Linux compiler to G++ rather than GCC
@@ -52,9 +61,9 @@ Notes
 ## [E-3] Optimize socket functions and classes
     [ ] HttpStream private method called socket
 		- Reference https://github.com/elnormous/HTTPRequest/blob/master/include/HTTPRequest.hpp
-	[ ] Load Winsock DLLs inside of HttpStream automatically on windows
-		- Reference https://github.com/elnormous/HTTPRequest/blob/master/include/HTTPRequest.hpp
-    [ ] Call WSAStartup inside of HttpStream automatically on windows
-		- Reference https://github.com/elnormous/HTTPRequest/blob/master/include/HTTPRequest.hpp
-    [ ] Call WSACleanup inside of HttpStream automatically on windows
-		- Reference https://github.com/elnormous/HTTPRequest/blob/master/include/HTTPRequest.hpp
+	[X] Load Winsock DLLs inside of HttpStream automatically on windows
+		- Inside a new function called HttpStream::winsock_init DLLs are loaded automatically on windows
+    [X] Call WSAStartup inside of HttpStream automatically on windows
+		- Inside a new function called HttpStream::winsock_init DLLs are loaded automatically on windows
+    [X] Call WSACleanup inside of HttpStream automatically on windows
+		- This WSACleanup is called in HttpStream::close on windows

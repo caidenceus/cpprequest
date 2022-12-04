@@ -1,5 +1,6 @@
 #include "config.h"
 #include "cpprequest.h"
+#include "error.h"
 #include "socket_io.h"
 
 
@@ -72,7 +73,7 @@ void cppr::Request::write_request_header(std::string &request_buffer)
             "WARNING: " + this->method + " is an invalid method for " +
             (http_version_str == "" ? "HTTP/0.9" : http_version_str) + ".\n"
         };
-        throw cppr::error::RequestError{err};
+        throw cpprerr::RequestError{err};
     }
 
     request_buffer += this->uri.path + " ";
@@ -115,7 +116,7 @@ ssize_t cppr::Get::request(cppr::Response &response)
     stream.close();
  
     if (error != 0) {
-        throw cppr::error::SocketIoError{ "Socket error: unable to write response buffer.\n" };
+        throw cpprerr::SocketIoError{ "Socket error: unable to write response buffer.\n" };
         return -1;
     }
   
@@ -146,7 +147,7 @@ ssize_t cppr::Post::request(cppr::Response &response)
     stream.close();
 
     if (error != 0) {
-        throw cppr::error::SocketIoError{ "Socket error: unable to write response buffer.\n" };
+        throw cpprerr::SocketIoError{ "Socket error: unable to write response buffer.\n" };
         return -1;
     }
 

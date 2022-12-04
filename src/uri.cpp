@@ -1,4 +1,5 @@
 #include "cpprequest.h"
+#include "error.h"
 #include "utility.h"
 
 #define NPOS std::string::npos
@@ -23,7 +24,7 @@ cppr::Uri cppr::parse_uri(std::string uri, std::string port)
     std::string::iterator tail = uri.end();
 
     if (head == tail || !is_alpha(*head)) {
-        throw cppr::error::ParseError{
+        throw cpprerr::ParseError{
             "Invalid URI. Please refer to RFC 3986 Section 3: "
             "https://www.rfc-editor.org/rfc/rfc3986#section-3.1"
         };
@@ -34,7 +35,7 @@ cppr::Uri cppr::parse_uri(std::string uri, std::string port)
 
     std::string authority = std::string(head, tail);
     if (head == tail || authority.substr(0, 3) != "://") {
-        throw cppr::error::ParseError{
+        throw cpprerr::ParseError{
             "Invalid URI. Please refer to RFC 3986 Section 3: "
             "https://www.rfc-editor.org/rfc/rfc3986#section-3.1"
         };

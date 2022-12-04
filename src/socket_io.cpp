@@ -1,4 +1,5 @@
 #include "config.h" // HTTP_BUFF_SIZE
+#include "error.h"
 #include "loaddll.h"
 #include "socket_io.h"
 
@@ -73,7 +74,7 @@ ssize_t HttpStream::data_stream(std::string write_buffer, char* read_buffer, siz
     error = write_n_bytes(this->sockfd, write_buffer.c_str(), write_buffer.length());
 
     if (error == -1) {
-        cppr::error::SocketIoError{ "Socket error: Unable to write to the HTTP stream.\n" };
+        cpprerr::SocketIoError{ "Socket error: Unable to write to the HTTP stream.\n" };
         return -1;
     }
 
@@ -81,12 +82,12 @@ ssize_t HttpStream::data_stream(std::string write_buffer, char* read_buffer, siz
     error = received = read_n_bytes(this->sockfd, read_buffer, (size_t)total);
 
     if (error == -1) {
-        cppr::error::SocketIoError{ "Socket error: Unable to read from the HTTP stream.\n" };
+        cpprerr::SocketIoError{ "Socket error: Unable to read from the HTTP stream.\n" };
         return -1;
     }
 
     if (received == total) {
-        cppr::error::BufferOverflowError{
+        cpprerr::BufferOverflowError{
             "Success reading from socket, but not all data written to receive buffer."};
         return -1;
     }
