@@ -82,24 +82,12 @@ int main() {
 #pragma comment(lib, "Ws2_32.lib")
 
 int main() {
-    BOOL ws2_lib_loaded = cppr::LoadDLLs();
-    
-    // Initialize Winsock
-    WSADATA wsaData;
-    int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (iResult != NO_ERROR) {
-        wprintf(L"WSAStartup function failed with error: %d\n", iResult);
-        return -1;
-    }
-  
-    if (ws2_lib_loaded) {
-        cppr::Response response_buff;
-        cppr::Get req{ "http://127.0.0.1/public/index.php" };
-        req.request(response_buff);
+    cppr::Response response_buff;
+    cppr::Get req{ "http://127.0.0.1/public/index.php" };
+    req.request(response_buff);
 
-        // Print the raw response
-        std::cout << response_buff.raw;
-    }
+    // Print the raw response
+    std::cout << response_buff.raw;
 
     return 0;
 }
@@ -114,7 +102,7 @@ int main() {
 ### Windows
 1) Run Makefile.bat to compile.
 2) #include "cpprequest.h" at the top of your file
-3) Link and initialize to Winsock (see example 4)
+3) Link to Winsock (see example 4)
 4) Create Makefile.bat and run it to compile your program and link with cpprequest.lib. An example compile script is shown below.
 ```bat
 REM Makefile.bat
