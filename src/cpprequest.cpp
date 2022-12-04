@@ -112,6 +112,7 @@ ssize_t cppr::Get::request(cppr::Response &response)
     HttpStream stream{ this->uri };
     stream.init();
     error = stream.data_stream(request_buffer, response_buffer, sizeof(response_buffer));
+    stream.close();
  
     if (error != 0) {
         throw cppr::error::SocketIoError{ "Socket error: unable to write response buffer.\n" };
@@ -125,7 +126,7 @@ ssize_t cppr::Get::request(cppr::Response &response)
 }
 
 
-ssize_t  cppr::Post::request(cppr::Response &response)
+ssize_t cppr::Post::request(cppr::Response &response)
 {
     int error;
     std::string content_length = std::to_string(this->uri.query.length());
@@ -142,6 +143,7 @@ ssize_t  cppr::Post::request(cppr::Response &response)
   
     stream.init();
     error = stream.data_stream(request_buffer, response_buffer, sizeof(response_buffer));
+    stream.close();
 
     if (error != 0) {
         throw cppr::error::SocketIoError{ "Socket error: unable to write response buffer.\n" };

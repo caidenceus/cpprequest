@@ -28,7 +28,7 @@ public:
     // Create the sockfd and fill out serv_addr
     ssize_t init();
     ssize_t data_stream(std::string write_buffer, char* read_buffer, size_t read_buff_size);
-    int close(int fd) { return Close(fd); }
+    int close() { return Close(this->sockfd); }
 };
 
 

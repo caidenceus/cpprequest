@@ -8,20 +8,20 @@ Notes
 
 ## [E-2] Early refactoring and optimizations
 ### General
-	[ ] Add an UNLICENSE to the root of the project
-		- For more information, please refer to <http://unlicense.org/>
+	[X] Add an UNLICENSE to the root of the project
+		- Add an unlicense.txt file; for more information, please refer to <http://unlicense.org/>
 	[ ] Rewrite documentation for read_n_bytes and write_n_bytes
 		- We are using send and recv functions now rather than read and write
 		- Documentation to reflects the implementation change
-	[ ] Write function and class docstrings in public library header files
+	[X] Write function and class docstrings in public library header files
 		- Functions and classes are documented using cygen style docstrings
 
 ### Misc
 	[ ] Change Linux compiler to G++ rather than GCC
 		- Library compiles after changing CC line in Makefile from gcc to g++
-	[ ] Add a function to close a socket connection in HttpStream
+	[X] Add a function to close a socket connection in HttpStream
 		- HttpStream::close function closes this->sockfd
-	[ ] Close HttpStream after making request
+	[X] Close HttpStream after making request
 		- Post::request and Get::request close socet after reading from it
 
 ### String parsing
