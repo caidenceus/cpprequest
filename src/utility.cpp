@@ -8,6 +8,27 @@ bool is_white_space(char const c)
 }
 
 
+// Lowercase a character
+char to_lower(const char c)
+{
+    char mutable_char = c;
+    // A - Z
+    if (c >= 0x41 && c <= 0x5A)
+        return mutable_char + 0x20;
+    return c;
+}
+
+
+// Lowercase a string
+std::string to_lower(const std::string str)
+{
+    std::string lower{ };
+    for (auto it = str.begin(); it != str.end(); ++it)
+        lower += to_lower(*it);
+    return lower;
+}
+
+
 // RFC 5234, Appendix B.1. Core Rules
 bool is_digit(char const c)
 {

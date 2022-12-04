@@ -21,7 +21,7 @@ Notes
 	[X] Operating system agnostic get last error function
 		- On Linux returns errno and on windows returns WSAGetLastError
 		- This function lives in cppr_error
-    [ ] Remove duplicate header files
+    [X] Remove duplicate header files
 		- Four header files live in ./include/ as well as ./ remove all non public headers from ./include/
 		- Remove public facing headers from ./
 
@@ -35,7 +35,7 @@ Notes
 
 ### String parsing
 	[ ] Inside of valid_method_per_http_version, vectors of valid methods should be global
-	[ ] Inside of cppr::Request::write_request_header in the for loop, make header checking case insensitive
+	[X] Inside of cppr::Request::write_request_header in the for loop, make header checking case insensitive
 		- For loop to cast headers to lowecase when searching for host header
 		- String helper function to cast characters to lowecase
 	[ ] Make sure HTTP response status line is valid before parsing it in parse_response

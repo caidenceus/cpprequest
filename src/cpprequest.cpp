@@ -2,6 +2,7 @@
 #include "cpprequest.h"
 #include "error.h"
 #include "socket_io.h"
+#include "utility.h"
 
 
 static std::string printable_http_version(cppr::HttpVersion http_version)
@@ -86,9 +87,9 @@ void cppr::Request::write_request_header(std::string &request_buffer)
     }
 
     bool host_header = false;
-    for (auto it = this->headers.begin(); it != this->headers.end(); ++it) {
-        // TODO: headers are case insensitive, cast each header to lowercase for host checking
-        if (!host_header && ( (*it).first == "Host" || (*it).first == "host" ))
+    for (auto it = this->headers.begin(); it != this->headers.end(); ++it) 
+    {
+        if (!host_header && to_lower((*it).first) == "host")
             host_header = true;
         request_buffer += (*it).first + ": " + (*it).second + "\r\n";
     }
