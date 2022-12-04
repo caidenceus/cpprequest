@@ -5,16 +5,6 @@
 
 namespace cppr
 {
-#if defined(_WIN32) || defined(__CYGWIN__)
-    /**
-    * @brief Load DLL files needed for this library on Windows/
-    * 
-    * If running on Windows, this should be the first function called in main
-    * to load the Winsock DLL.
-    */
-    BOOL LoadDLLs(void);
-#endif // if defined(_WIN32) || defined(__CYGWIN__)
-
     /* Begin common definitions */
     enum class HttpVersion : std::uint8_t {
         NoHttp,

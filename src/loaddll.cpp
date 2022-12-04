@@ -33,7 +33,7 @@ GPN fgetpeername;
 CLSO fclosesocket;
 
 
-BOOL cppr::LoadDLLs(void)
+BOOL LoadDLLs(void)
 {
     BOOL dlls_loaded { FALSE };
 

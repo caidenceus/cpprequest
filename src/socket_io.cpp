@@ -1,9 +1,47 @@
 #include "config.h" // HTTP_BUFF_SIZE
+#include "loaddll.h"
 #include "socket_io.h"
+
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+void HttpStream::winsock_init()
+{
+    // TODO: Check this boolean
+    LoadDLLs();
+
+    WSADATA wsaData;
+    const auto error = fWSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (error != 0)
+        throw std::system_error{ error, std::system_category(), "WSAStartup failed" };
+
+    if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2) {
+        fWSACleanup();
+        throw std::runtime_error{ "Invalid WinSock version" };
+    }
+
+    this->winsock_initialized = true;
+}
+#endif // defined(_WIN32) || defined(__CYGWIN__)
+
+
+int HttpStream::close()
+{
+    int rtn;
+#if defined(_WIN32) || defined(__CYGWIN__)
+    if (this->winsock_initialized)
+        fWSACleanup();
+#endif // defined(_WIN32) || defined(__CYGWIN__)
+    rtn = Close(this->sockfd);
+    return rtn;
+}
 
 
 ssize_t HttpStream::init()
 {
+#if defined(_WIN32) || defined(__CYGWIN__)
+    this->winsock_init();
+#endif // defined(_WIN32) || defined(__CYGWIN__)
+
     // TODO: protocol agnostic
     this->sockfd = Socket(AF_INET, SOCK_STREAM, 0);
     memset(&serv_addr, 0, sizeof(serv_addr));

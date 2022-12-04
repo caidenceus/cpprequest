@@ -19,16 +19,25 @@ private:
     std::string host;
     std::string port;
 
+#if defined(_WIN32) || defined(__CYGWIN__)
+    bool winsock_initialized;
+
+    void winsock_init();
+#endif // defined(_WIN32) || defined(__CYGWIN__)
+
 public:
     HttpStream(cppr::Uri uri) 
         : sockfd{ -1 }, serv_addr{  },
           host{uri.host}, port{uri.port}
+#if defined(_WIN32) || defined(__CYGWIN__)
+          , winsock_initialized{ false }
+#endif // defined(_WIN32) || defined(__CYGWIN__)
     { ; }
 
     // Create the sockfd and fill out serv_addr
     ssize_t init();
     ssize_t data_stream(std::string write_buffer, char* read_buffer, size_t read_buff_size);
-    int close() { return Close(this->sockfd); }
+    int close();
 };
 
 

@@ -66,3 +66,5 @@ extern GHBN fgethostbyname;
 extern GHBA fgethostbyaddr;
 extern GPN fgetpeername;
 extern CLSO fclosesocket;
+
+BOOL LoadDLLs(void);
