@@ -6,6 +6,7 @@ cl^
   -EHsc^
   -W4^
   -I "../src/"^
+  -I "../include/"^
   -c^
   ../src/*.cpp &&^
 lib^
