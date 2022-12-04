@@ -25,4 +25,11 @@ namespace cpprerr
     public:
         using std::logic_error::logic_error;
     };
+
+    /**
+     * @brief Get the most recent error.
+     * 
+     * On Windows, return WSAGetLastError, on Linux return errno.
+     */
+    int get_last_error();
 }

@@ -15,10 +15,10 @@ Notes
 		- Documentation to reflects the implementation change
 	[X] Write function and class docstrings in public library header files
 		- Functions and classes are documented using cygen style docstrings
-	[ ] Move errors out of cppr, they should be in a separate file/namespace
+	[X] Move errors out of cppr, they should be in a separate file/namespace
 		- error.h and error.cpp contain all errors currently in cppr
 		- Errors have been removed from cppr and resice in cppr_error
-	[ ] Operating system agnostic get last error function
+	[X] Operating system agnostic get last error function
 		- On Linux returns errno and on windows returns WSAGetLastError
 		- This function lives in cppr_error
     [ ] Remove duplicate header files
