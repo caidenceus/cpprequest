@@ -34,7 +34,6 @@ Notes
 		- Post::request and Get::request close socet after reading from it
 
 ### String parsing
-	[ ] Inside of valid_method_per_http_version, vectors of valid methods should be global
 	[X] Parse HTTP version function
 		- Takes a string and returns cppr::HttpVersion
 		- Throw error of HttpVersion is invalid
@@ -49,23 +48,13 @@ Notes
 	[X] Make sure HTTP headers are valid before parsing them in parse_response
 		- Break parse_response into multiple functions, this function will be called parse_response_headers
 		- parse_response_headers to check to make sure response is valid
-	[ ] Make sure response.raw gets instantiated to empty string if there is no response body
-	[ ] Add HttpResponseError
+	[X] Make sure response.raw gets instantiated to empty string if there is no response body
+	[X] Add HttpVersionError
 		- Add an error in cppr::error
-		- Throw this error in response parsing functions
-
-### Error handling
-	[ ] Add error handling to HttpStream::init() for all socket/network functions
-		- Reference https://github.com/elnormous/HTTPRequest/blob/master/include/HTTPRequest.hpp
-	[ ] Add error handling to write_n_bytes
-		- Reference https://github.com/elnormous/HTTPRequest/blob/master/include/HTTPRequest.hpp
-	[ ] Add error handling to read_n_bytes
-		- Reference https://github.com/elnormous/HTTPRequest/blob/master/include/HTTPRequest.hpp
+		- Throw this error in response parsing function
 
 
 ## [E-3] Optimize socket functions and classes
-    [ ] HttpStream private method called socket
-		- Reference https://github.com/elnormous/HTTPRequest/blob/master/include/HTTPRequest.hpp
 	[X] Load Winsock DLLs inside of HttpStream automatically on windows
 		- Inside a new function called HttpStream::winsock_init DLLs are loaded automatically on windows
     [X] Call WSAStartup inside of HttpStream automatically on windows

@@ -9,6 +9,14 @@
   [ ] HttpStream private method called send
   [ ] HttpStream private method called recv
   [ ] Replace read_n_bytes and write_n_bytes with HttpStream private methods
+  [ ] Add error handling to HttpStream::init() for all socket/network functions
+	- Reference https://github.com/elnormous/HTTPRequest/blob/master/include/HTTPRequest.hpp
+  [ ] Add error handling to write_n_bytes
+	- Reference https://github.com/elnormous/HTTPRequest/blob/master/include/HTTPRequest.hpp
+  [ ] Add error handling to read_n_bytes
+	- Reference https://github.com/elnormous/HTTPRequest/blob/master/include/HTTPRequest.hpp
+  [ ] HttpStream private method called socket
+	- Reference https://github.com/elnormous/HTTPRequest/blob/master/include/HTTPRequest.hpp
 
 - [E-4] Add HTTP/0.9 and HTTP/1.0 compliance (RFC 1945)
   [ ] Check that URI passed to ctors is valid
@@ -23,13 +31,13 @@
   [ ] Add support for cuuncked transfer coding (RFC 7230)
 
 - [E-5] Add Request classes for all HTTP 1.1 verbs
-	[ ] Add header checking per HTTP version
-	[ ] HEAD request class
-	[ ] PUT request class
-	[ ] OPTIONS request cless
-	[ ] DELETE request class
-	[ ] TRACE request class
-	[ ] CONNECT request class
+  [ ] Add header checking per HTTP version
+  [ ] HEAD request class
+  [ ] PUT request class
+  [ ] OPTIONS request cless
+  [ ] DELETE request class
+  [ ] TRACE request class
+  [ ] CONNECT request class
 
 - [E-x] Obsolete HttpStream and handle sockets directly from Request functions
 - [E-x] Add support for common request and response headers
