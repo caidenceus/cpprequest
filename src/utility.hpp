@@ -16,3 +16,12 @@ bool is_alpha(char const c);
 */
 std::string url_encode(const std::string query);
 
+
+template <typename T, typename C, typename std::enable_if<std::is_unsigned<T>::value>::type* = nullptr>
+T digit_to_uint(const C c)
+{
+    // DIGIT
+    if (c >= 0x30 && c <= 0x39)
+        return static_cast<T>(c - 0x30); // 0 - 9
+    throw cpprerr::ResponseError{ "Invalid digit" };
+}

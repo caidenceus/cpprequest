@@ -2,7 +2,7 @@
 #include "cpprequest.h"
 #include "error.h"
 #include "socket_io.h"
-#include "utility.h"
+#include "utility.hpp"
 
 
 static std::string printable_http_version(cppr::HttpVersion http_version)

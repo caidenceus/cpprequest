@@ -26,6 +26,16 @@ namespace cpprerr
         using std::logic_error::logic_error;
     };
 
+    class ResponseError final : public std::logic_error {
+    public:
+        using std::logic_error::logic_error;
+    };
+
+    class HttpVersionError final : public std::logic_error {
+    public:
+        using std::logic_error::logic_error;
+    };
+
     /**
      * @brief Get the most recent error.
      * 

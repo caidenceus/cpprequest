@@ -35,13 +35,18 @@ Notes
 
 ### String parsing
 	[ ] Inside of valid_method_per_http_version, vectors of valid methods should be global
+	[X] Parse HTTP version function
+		- Takes a string and returns cppr::HttpVersion
+		- Throw error of HttpVersion is invalid
 	[X] Inside of cppr::Request::write_request_header in the for loop, make header checking case insensitive
 		- For loop to cast headers to lowecase when searching for host header
 		- String helper function to cast characters to lowecase
-	[ ] Make sure HTTP response status line is valid before parsing it in parse_response
+	[X] Make sure HTTP response status line is valid before parsing it in parse_response
 		- Break parse_response into multiple functions, this function will be called parse_response_status_line
 		- parse_response_status_line to check to make sure response is valid
-	[ ] Make sure HTTP headers are valid before parsing it in parse_response
+		    - Helper function to parse HTTP version
+		    - Helper function to parse status code
+	[ ] Make sure HTTP headers are valid before parsing them in parse_response
 		- Break parse_response into multiple functions, this function will be called parse_response_headers
 		- parse_response_headers to check to make sure response is valid
 	[ ] Make sure response.raw gets instantiated to empty string if there is no response body
