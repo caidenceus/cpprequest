@@ -115,6 +115,8 @@ void cppr::Response::parse_response()
 		std::string current_header = header_block.substr(0, line_break);
 		
 		size_t delim = current_header.find(":");
+        if (delim == std::string::npos)
+            throw cpprerr::ParseError{ "Invalid HTTP header received" };
 		std::string header_key = current_header.substr(0, delim);
 		
 		// delim + 2 to get substring after ": "
