@@ -46,7 +46,7 @@ Notes
 		- parse_response_status_line to check to make sure response is valid
 		    - Helper function to parse HTTP version
 		    - Helper function to parse status code
-	[ ] Make sure HTTP headers are valid before parsing them in parse_response
+	[X] Make sure HTTP headers are valid before parsing them in parse_response
 		- Break parse_response into multiple functions, this function will be called parse_response_headers
 		- parse_response_headers to check to make sure response is valid
 	[ ] Make sure response.raw gets instantiated to empty string if there is no response body
