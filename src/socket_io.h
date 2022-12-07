@@ -5,12 +5,6 @@
 #include "socket_wrapper.h"
 
 
-enum class AfInet : std::uint8_t {
-    IPv4,
-    IPv6
-};
-
-
 class HttpStream {
 private:
     int sockfd;
@@ -26,13 +20,7 @@ private:
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
 public:
-    HttpStream(cppr::Uri uri) 
-        : sockfd{ -1 }, serv_addr{  },
-          host{uri.host}, port{uri.port}
-#if defined(_WIN32) || defined(__CYGWIN__)
-          , winsock_initialized{ false }
-#endif // defined(_WIN32) || defined(__CYGWIN__)
-    { ; }
+    HttpStream(cppr::Uri uri);
 
     // Create the sockfd and fill out serv_addr
     ssize_t init();

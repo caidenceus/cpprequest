@@ -4,6 +4,8 @@
 #include "socket_io.h"
 #include "utility.hpp"
 
+#include <iostream>
+
 
 static std::string printable_http_version(cppr::HttpVersion http_version)
 {
@@ -107,11 +109,11 @@ void cppr::Request::write_request_header(std::string &request_buffer)
 ssize_t cppr::Get::request(cppr::Response &response)
 {
     ssize_t error;
-    std::string request_buffer;
     char response_buffer[HTTP_BUFF_SIZE];
+    std::string request_buffer;
     this->write_request_header(request_buffer);
-
     HttpStream stream{ this->uri };
+
     stream.init();
     error = stream.data_stream(request_buffer, response_buffer, sizeof(response_buffer));
     stream.close();
@@ -120,7 +122,7 @@ ssize_t cppr::Get::request(cppr::Response &response)
         throw cpprerr::SocketIoError{ "Socket error: unable to write response buffer.\n" };
         return -1;
     }
-  
+ 
     response.raw = std::string{ response_buffer };
     response.parse_response();
 
