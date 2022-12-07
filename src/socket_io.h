@@ -30,29 +30,6 @@ public:
 
 
 /**
- * @brief Write n bytes of a buffer to the socket descriptor sockfd.
- *
- * The purpose of this function is to handle possibility that write
- * will return less bytes than count due to insufficient space on the
- * physical medium, or if write is interrupted by a signal handler
- * after writing less than count bytes, for example.
- *
- * In the case of a partial write, the caller can invoke write again
- * to transfer the remaining bytes; this function is designed to
- * detect partial writes and call write again to transfer all bytes.
- *
- * Write is called internally and handled appropriately.
- * ssize_t write(int fd, const void *buf, size_t count);
- *
- * @param sockfd The socket descriptor to write to.
- * @param buffer The buffer to write from.
- * @param n The number of bytes to write from the buffer to the socket descriptor.
- * @return The number of bytes written or -1 on error.
- */
-ssize_t write_n_bytes(int sockfd, const std::string send_buff, size_t n);
-
-
-/**
  * @brief Read n bytes to a buffer from the socket descriptor sockfd.
  *
  * The purpose of this function is to handle the possibilities that

@@ -3,6 +3,7 @@
 #include "error.h"
 #include "loaddll.h"
 #include "socket_io.h"
+#include "socket_wrapper.h"
 
 
 HttpStream::HttpStream(cppr::Uri uri)
@@ -81,37 +82,40 @@ ssize_t HttpStream::init()
 
 ssize_t HttpStream::data_stream(std::string write_buffer, char* read_buffer, size_t read_buff_size)
 {
-    int total, received, error;
-    error = write_n_bytes(this->sockfd, write_buffer.c_str(), write_buffer.length());
+    int total, received, size;
+    auto remaining = write_buffer.size();
+    auto send_data = write_buffer.c_str();
 
-    if (error == -1) {
-        cpprerr::SocketIoError{ "Socket error: Unable to write to the HTTP stream.\n" };
-        return -1;
+    // send the request
+    while (remaining > 0)
+    {
+        size = Send(this->sockfd, send_data, remaining, 0);
+        if (size == -1)
+        {
+            this->close();
+            cpprerr::SocketIoError{ "Socket error: Unable to write to the HTTP stream.\n" };
+        }
+        remaining -= size;
+        send_data += size;
     }
 
     total = read_buff_size - 1;
-    error = received = read_n_bytes(this->sockfd, read_buffer, (size_t)total);
+    received = read_n_bytes(this->sockfd, read_buffer, (size_t)total);
 
-    if (error == -1) {
+    if (received == -1)
+    {
+        this->close();
         cpprerr::SocketIoError{ "Socket error: Unable to read from the HTTP stream.\n" };
-        return -1;
     }
 
-    if (received == total) {
+    if (received == total)
+    {
+        this->close();
         cpprerr::BufferOverflowError{
             "Success reading from socket, but not all data written to receive buffer."};
-        return -1;
     }
 
   return 0;
-}
-
-
-ssize_t write_n_bytes(int sockfd, const std::string send_buff, size_t n)
-{
-    int bytes_written{ 0 };
-    bytes_written = Send(sockfd, send_buff.c_str(), n, 0);
-    return bytes_written;
 }
 
 
