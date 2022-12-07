@@ -6,29 +6,38 @@
 #include "socket_wrapper.h"
 
 
-HttpStream::HttpStream(cppr::Uri uri)
-    : sockfd{ -1 }, serv_addr{  }, host{ uri.host }, port{ uri.port }
+HttpStream::HttpStream(cppr::Uri uri) : sockfd{ -1 }, serv_addr{  }, host{ uri.host }, port{ uri.port }
 #if defined(_WIN32) || defined(__CYGWIN__)
     , winsock_initialized{ false }
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 {
-// TODO: move socket code to Socket in socket_wrapper.cpp
-
 #if defined(_WIN32) || defined(__CYGWIN__)
     this->winsock_init();
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
-    // TODO: make sure this is valid before setting a member variable
     // TODO: Pass internet protocol to HttpStream ctor
     this->sockfd = Socket(AF_INET, SOCK_STREAM, 0);
+    if (this->sockfd == -1)
+    {
+        this->close();
+        throw std::system_error{ 
+            cpprerr::get_last_error(), std::system_category(), "Failed to open socket fd" 
+        };
+    }
 }
 
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 void HttpStream::winsock_init()
 {
-    // TODO: Check this boolean
-    LoadDLLs();
+    BOOL dlls_loaded = LoadDLLs();
+
+    if (!dlls_loaded)
+    {
+        throw std::system_error{
+            cpprerr::get_last_error(), std::system_category(), "Unable to load DLLs"
+        };
+    }
 
     WSADATA wsaData;
     const auto error = fWSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -51,13 +60,15 @@ int HttpStream::close()
     if (this->winsock_initialized)
         fWSACleanup();
 #endif // defined(_WIN32) || defined(__CYGWIN__)
-    return Close(this->sockfd);
+    if (this->sockfd != -1)
+        return Close(this->sockfd);
+    return 0;
 }
 
 
-ssize_t HttpStream::init()
+void HttpStream::init()
 {
-    memset(&serv_addr, 0, sizeof(serv_addr));
+    memset(&(this->serv_addr), 0, sizeof(this->serv_addr));
 
     char domain_ip[INET6_ADDRSTRLEN];
     memset(&domain_ip, 0, sizeof(domain_ip));
@@ -67,16 +78,16 @@ ssize_t HttpStream::init()
 
     // TODO: protocol agnostic
     this->serv_addr.sin_family = AF_INET;
-    this->serv_addr.sin_port = Htons((uint16_t)atoi(this->port.c_str()));
+    this->serv_addr.sin_port = Htons(static_cast<uint16_t>(atoi(this->port.c_str())));
 
     this->serv_addr.sin_addr.s_addr = Inet_addr(this->host.c_str());
 
-    if (Connect(this->sockfd, (struct sockaddr *) &(this->serv_addr), sizeof(this->serv_addr)) < 0) {
-        std::cout << "ERROR connecting";
-        return -1;
+    if (Connect(this->sockfd, (struct sockaddr *) &(this->serv_addr), sizeof(this->serv_addr)) < 0)
+    {
+        throw std::system_error{
+            cpprerr::get_last_error(), std::system_category(), "Socket failed to connect"
+        };
     }
-
-    return 0;
 }
 
 

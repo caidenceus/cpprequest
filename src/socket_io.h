@@ -23,7 +23,7 @@ public:
     HttpStream(cppr::Uri uri);
 
     // Create the sockfd and fill out serv_addr
-    ssize_t init();
+    void init();
     ssize_t data_stream(std::string write_buffer, char* read_buffer, size_t read_buff_size);
     int close();
 };
