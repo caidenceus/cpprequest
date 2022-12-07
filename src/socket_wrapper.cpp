@@ -1,6 +1,7 @@
+#include "error.h"
+#include "includes.h"
+#include "loaddll.h"
 #include "socket_wrapper.h"
-
-// TODO: add error handling to all wrapper functions
 
 
 uint16_t Htons(uint16_t hostshort)
@@ -26,10 +27,51 @@ in_addr_t Inet_addr(const char* cp)
 int Connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
 {
 #if defined(_WIN32) || defined(__CYGWIN__)
-	return fconnect(sockfd, addr, addrlen);
+    auto result = connect(sockfd, addr, addrlen);
+    while (result == -1 && cpprerr::get_last_error() == WSAEINTR)
+        result = connect(sockfd, addr, addrlen);
+
+    if (result == -1)
+    {
+        if (cpprerr::get_last_error() == WSAEWOULDBLOCK)
+        {
+            char socketErrorPointer[sizeof(int)];
+            socklen_t optionLength = sizeof(socketErrorPointer);
+            if (fgetsockopt(sockfd, SOL_SOCKET, SO_ERROR, socketErrorPointer, &optionLength) == -1)
+                throw std::system_error{ cpprerr::get_last_error(), std::system_category(), "Failed to get socket option" };
+
+            int socketError;
+            std::memcpy(&socketError, socketErrorPointer, sizeof(socketErrorPointer));
+
+            if (socketError != 0)
+                throw std::system_error{ socketError, std::system_category(), "Failed to connect" };
+        }
+        else
+            throw std::system_error{ cpprerr::get_last_error(), std::system_category(), "Failed to connect" };
+    }
 #else
-	return connect(sockfd, addr, addrlen);
-#endif // if defined(_WIN32) || defined(__CYGWIN__)
+    auto result = connect(sockfd, addr, addrlen);
+    while (result == -1 && errno == EINTR)
+        result = connect(sockfd, addr, addrlen);
+
+    if (result == -1)
+    {
+        if (errno == EINPROGRESS)
+        {
+            int socketError;
+            socklen_t optionLength = sizeof(socketError);
+            if (getsockopt(endpoint, SOL_SOCKET, SO_ERROR, &socketError, &optionLength) == -1)
+                throw std::system_error{ errno, std::system_category(), "Failed to get socket option" };
+
+            if (socketError != 0)
+                throw std::system_error{ socketError, std::system_category(), "Failed to connect" };
+        }
+        else
+            throw std::system_error{ errno, std::system_category(), "Failed to connect" };
+    }
+#endif // defined(_WIN32) || defined(__CYGWIN__)
+
+    return result;
 }
 
 

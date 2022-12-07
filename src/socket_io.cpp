@@ -93,7 +93,6 @@ ssize_t HttpStream::init()
 
     this->serv_addr.sin_addr.s_addr = Inet_addr(this->host.c_str());
 
-    // TODO: write socket wrapper functions to handle error checking
     if (Connect(this->sockfd, (struct sockaddr *) &(this->serv_addr), sizeof(this->serv_addr)) < 0) {
         std::cout << "ERROR connecting";
         return -1;

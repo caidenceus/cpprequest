@@ -34,6 +34,7 @@ typedef struct hostent* FAR (__stdcall *GHBN)(const char *);
 typedef struct hostent* FAR (__stdcall *GHBA)(const char *, int, int);
 typedef int (__stdcall *GPN)(SOCKET, struct sockaddr*, int *);
 typedef int (__stdcall *CLSO)(SOCKET);
+typedef int(__stdcall* GSOCKOPT)(SOCKET, int, int, char *, int *);
 
 extern WSAS fWSAStartup;
 extern WSASo fWSASocket;
@@ -66,5 +67,6 @@ extern GHBN fgethostbyname;
 extern GHBA fgethostbyaddr;
 extern GPN fgetpeername;
 extern CLSO fclosesocket;
+extern GSOCKOPT fgetsockopt;
 
 BOOL LoadDLLs(void);
