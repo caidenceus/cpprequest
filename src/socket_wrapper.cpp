@@ -76,24 +76,49 @@ int Connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
 
 
 // TODO: buf should be void instead of char
-ssize_t Send(int sockfd, const char* buf, size_t len, int flags)
+ssize_t Send(int sockfd, const char* buffer, size_t len, int flags)
 {
 #if defined(_WIN32) || defined(__CYGWIN__)
-	return fsend(sockfd, buf, len, flags);
+    // auto result = fsend(sockfd, reinterpret_cast<const char*>(buffer), static_cast<int>(length), 0);
+    auto result = fsend(sockfd, buffer, static_cast<int>(len), flags);
+
+    while (result == -1 && cpprerr::get_last_error() == WSAEINTR)
+        result = send(sockfd, buffer, static_cast<int>(len), flags);
 #else
-	return send(sockfd, buf, len, flags);
-#endif // if defined(_WIN32) || defined(__CYGWIN__)
+    auto result = send(sockfd, buffer, static_cast<int>(len), flags);
+
+    while (result == -1 && errno == EINTR)
+        result = send(sockfd, buffer, static_cast<int>(len), flags);
+#endif // defined(_WIN32) || defined(__CYGWIN__)
+
+    if (result == -1)
+        throw std::system_error{ cpprerr::get_last_error(), std::system_category(), "Failed to send data" };
+
+    return static_cast<ssize_t>(result);
 }
 
 
 // TODO: buf should be void instead of char
-ssize_t Recv(int sockfd, char* buf, size_t len, int flags)
+ssize_t Recv(int sockfd, char* buffer, size_t len, int flags)
 {
 #if defined(_WIN32) || defined(__CYGWIN__)
-	return frecv(sockfd, buf, len, flags);
+    // auto result = recv(sockfd, reinterpret_cast<char*>(buffer), static_cast<int>(len), flags);
+    auto result = frecv(sockfd, buffer, static_cast<int>(len), flags);
+
+    while (result == -1 && cpprerr::get_last_error() == WSAEINTR)
+        result = frecv(sockfd, buffer, static_cast<int>(len), flags);
 #else
-	return recv(sockfd, buf, len, flags);
-#endif // if defined(_WIN32) || defined(__CYGWIN__)
+    auto result = recv(sockfd, buffer, static_cast<int>(len), flags);
+
+    while (result == -1 && cpprerr::get_last_error() == EINTR)
+        result = frecv(sockfd, buffer, static_cast<int>(len), flags);
+
+#endif // defined(_WIN32) || defined(__CYGWIN__)
+
+    if (result == -1)
+        throw std::system_error{ cpprerr::get_last_error(), std::system_category(), "Failed to read data" };
+
+    return static_cast<ssize_t>(result);
 }
 
 

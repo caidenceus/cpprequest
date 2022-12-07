@@ -4,7 +4,6 @@
 #include "loaddll.h"
 #include "socket_io.h"
 
-#include <iostream>
 
 HttpStream::HttpStream(cppr::Uri uri)
     : sockfd{ -1 }, serv_addr{  }, host{ uri.host }, port{ uri.port }
@@ -12,6 +11,8 @@ HttpStream::HttpStream(cppr::Uri uri)
     , winsock_initialized{ false }
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 {
+// TODO: move socket code to Socket in socket_wrapper.cpp
+
 #if defined(_WIN32) || defined(__CYGWIN__)
     this->winsock_init();
 #endif // defined(_WIN32) || defined(__CYGWIN__)
@@ -19,28 +20,6 @@ HttpStream::HttpStream(cppr::Uri uri)
     // TODO: make sure this is valid before setting a member variable
     // TODO: Pass internet protocol to HttpStream ctor
     this->sockfd = Socket(AF_INET, SOCK_STREAM, 0);
-
-#if defined(_WIN32) || defined(__CYGWIN__)
-    // ULONG mode = 1;
-    //if (fioctlsocket(this->sockfd, FIONBIO, &mode) != 0)
-    //{
-    //    close();
-    //    throw std::system_error{ cpprerr::get_last_error(), std::system_category(), "Failed to get socket flags" };
-    //}
-#else
-    const auto flags = fcntl(this->sockfd, F_GETFL);
-    if (flags == -1)
-    {
-        close();
-        throw std::system_error{ cpprerr::get_last_error(), std::system_category(), "Failed to get socket flags" };
-    }
-
-    if (fcntl(this->sockfd, F_SETFL, flags | O_NONBLOCK) == -1)
-    {
-        close();
-        throw std::system_error{ errno, std::system_category(), "Failed to set socket flags" };
-    }
-#endif // defined(_WIN32) || defined(__CYGWIN__)
 }
 
 
@@ -67,13 +46,11 @@ void HttpStream::winsock_init()
 
 int HttpStream::close()
 {
-    int rtn;
 #if defined(_WIN32) || defined(__CYGWIN__)
     if (this->winsock_initialized)
         fWSACleanup();
 #endif // defined(_WIN32) || defined(__CYGWIN__)
-    rtn = Close(this->sockfd);
-    return rtn;
+    return Close(this->sockfd);
 }
 
 
@@ -97,7 +74,7 @@ ssize_t HttpStream::init()
         std::cout << "ERROR connecting";
         return -1;
     }
-    std::cout << "\n\nCONNECTED!\n\n";
+
     return 0;
 }
 
