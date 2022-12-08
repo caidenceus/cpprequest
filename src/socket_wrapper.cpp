@@ -4,7 +4,7 @@
 #include "socket_wrapper.h"
 
 
-uint16_t Htons(uint16_t hostshort)
+std::uint16_t Htons(std::uint16_t hostshort)
 {
 #if defined(_WIN32) || defined(__CYGWIN__)
 	return fhtons(hostshort);
@@ -14,7 +14,7 @@ uint16_t Htons(uint16_t hostshort)
 }
 
 
-in_addr_t Inet_addr(const char* cp)
+std::uint32_t Inet_addr(const char* cp)
 {
 #if defined(_WIN32) || defined(__CYGWIN__)
 	return finet_addr(cp);
@@ -27,48 +27,44 @@ in_addr_t Inet_addr(const char* cp)
 int Connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
 {
 #if defined(_WIN32) || defined(__CYGWIN__)
-    auto result = connect(sockfd, addr, addrlen);
+    auto result = fconnect(sockfd, addr, addrlen);
+
+    // Interrupted function call
     while (result == -1 && cpprerr::get_last_error() == WSAEINTR)
-        result = connect(sockfd, addr, addrlen);
+        result = fconnect(sockfd, addr, addrlen);
 
-    if (result == -1)
+    if (result == SOCKET_ERROR)
     {
-        if (cpprerr::get_last_error() == WSAEWOULDBLOCK)
+        const auto error = cpprerr::get_last_error();
+        std::string msg{ "(CONNECT ERROR) Failed to connect" };
+
+        switch (error)
         {
-            char socketErrorPointer[sizeof(int)];
-            socklen_t optionLength = sizeof(socketErrorPointer);
-            if (fgetsockopt(sockfd, SOL_SOCKET, SO_ERROR, socketErrorPointer, &optionLength) == -1)
-                throw std::system_error{ cpprerr::get_last_error(), std::system_category(), "Failed to get socket option" };
-
-            int socketError;
-            std::memcpy(&socketError, socketErrorPointer, sizeof(socketErrorPointer));
-
-            if (socketError != 0)
-                throw std::system_error{ socketError, std::system_category(), "Failed to connect" };
+        case WSAEADDRNOTAVAIL: 
+            msg = "(CONNECT ERROR) Invalid address; failed to connect";
+            break;
+        case WSAENETUNREACH: 
+            msg = "(CONNECT ERROR) Host network is unreachable";
+            break;
+        case WSAEHOSTUNREACH: 
+            msg = "(CONNECT ERROR) Host is unreachable";
+            break;
+        case WSAETIMEDOUT: 
+            msg = "(CONNECT ERROR) The connect function timed out";
+            break;
+        default:
+            break;
         }
-        else
-            throw std::system_error{ cpprerr::get_last_error(), std::system_category(), "Failed to connect" };
+
+        throw std::system_error{ error, std::system_category(), msg };
     }
 #else
     auto result = connect(sockfd, addr, addrlen);
+
     while (result == -1 && errno == EINTR)
         result = connect(sockfd, addr, addrlen);
 
-    if (result == -1)
-    {
-        if (errno == EINPROGRESS)
-        {
-            int socketError;
-            socklen_t optionLength = sizeof(socketError);
-            if (getsockopt(endpoint, SOL_SOCKET, SO_ERROR, &socketError, &optionLength) == -1)
-                throw std::system_error{ errno, std::system_category(), "Failed to get socket option" };
-
-            if (socketError != 0)
-                throw std::system_error{ socketError, std::system_category(), "Failed to connect" };
-        }
-        else
-            throw std::system_error{ errno, std::system_category(), "Failed to connect" };
-    }
+    throw std::system_error{ errno, std::system_category(), "Failed to connect" };
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
     return result;
@@ -83,7 +79,7 @@ ssize_t Send(int sockfd, const char* buffer, size_t len, int flags)
     auto result = fsend(sockfd, buffer, static_cast<int>(len), flags);
 
     while (result == -1 && cpprerr::get_last_error() == WSAEINTR)
-        result = send(sockfd, buffer, static_cast<int>(len), flags);
+        result = fsend(sockfd, buffer, static_cast<int>(len), flags);
 #else
     auto result = send(sockfd, buffer, static_cast<int>(len), flags);
 
