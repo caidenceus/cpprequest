@@ -17,10 +17,51 @@ std::uint16_t Htons(std::uint16_t hostshort)
 std::uint32_t Inet_addr(const char* cp)
 {
 #if defined(_WIN32) || defined(__CYGWIN__)
-	return finet_addr(cp);
+     std::uint32_t net_byte_order_addr = finet_addr(cp);
+
+    if (net_byte_order_addr == INADDR_NONE)
+    {
+        std::string msg = "(INET_ADDR) invalid IPv4 address";
+        throw std::system_error{ cpprerr::get_last_error(), std::system_category(), msg };
+    }
 #else
-	return inet_addr(cp);
+     std::uint32_t net_byte_order_addr = inet_addr(cp);
 #endif // if defined(_WIN32) || defined(__CYGWIN__)
+
+    return net_byte_order_addr;
+}
+
+
+int Socket(int domain, int type, int protocol)
+{
+#if defined(_WIN32) || defined(__CYGWIN__)
+    int sock = fsocket(domain, type, protocol);
+
+    if (sock == INVALID_SOCKET)
+    {
+        const auto error = cpprerr::get_last_error();
+        std::string msg{ "(SOCKET) " };
+
+        switch (error)
+        {
+        case WSAEPROTOTYPE:
+            msg += "Unsupported protocol for this socket.";
+            break;
+        case WSAESOCKTNOSUPPORT:
+            msg += "Unsupported address family for this type of socket";
+            break;
+        default:
+            msg += "Failed to create a socket descriptor";
+            break;
+        }
+
+        throw std::system_error{ error, std::system_category(), msg };
+    }
+#else
+    int sock = socket(domain, type, protocol);
+#endif // if defined(_WIN32) || defined(__CYGWIN__)
+
+    return sock;
 }
 
 
@@ -30,29 +71,30 @@ int Connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
     auto result = fconnect(sockfd, addr, addrlen);
 
     // Interrupted function call
-    while (result == -1 && cpprerr::get_last_error() == WSAEINTR)
+    while (result == SOCKET_ERROR && cpprerr::get_last_error() == WSAEINTR)
         result = fconnect(sockfd, addr, addrlen);
 
     if (result == SOCKET_ERROR)
     {
         const auto error = cpprerr::get_last_error();
-        std::string msg{ "(CONNECT ERROR) Failed to connect" };
+        std::string msg{ "(CONNECT) " };
 
         switch (error)
         {
         case WSAEADDRNOTAVAIL: 
-            msg = "(CONNECT ERROR) Invalid address; failed to connect";
+            msg += "Invalid address; failed to connect";
             break;
         case WSAENETUNREACH: 
-            msg = "(CONNECT ERROR) Host network is unreachable";
+            msg += "Host network is unreachable";
             break;
         case WSAEHOSTUNREACH: 
-            msg = "(CONNECT ERROR) Host is unreachable";
+            msg += "Host is unreachable";
             break;
         case WSAETIMEDOUT: 
-            msg = "(CONNECT ERROR) The connect function timed out";
+            msg += "The connect function timed out";
             break;
         default:
+            msg += "Error connecting to host";
             break;
         }
 
@@ -115,16 +157,6 @@ ssize_t Recv(int sockfd, char* buffer, size_t len, int flags)
         throw std::system_error{ cpprerr::get_last_error(), std::system_category(), "Failed to read data" };
 
     return static_cast<ssize_t>(result);
-}
-
-
-int Socket(int domain, int type, int protocol)
-{
-#if defined(_WIN32) || defined(__CYGWIN__)
-    return fsocket(domain, type, protocol);
-#else
-    return socket(domain, type, protocol);
-#endif // if defined(_WIN32) || defined(__CYGWIN__)
 }
 
 

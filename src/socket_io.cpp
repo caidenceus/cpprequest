@@ -17,13 +17,6 @@ HttpStream::HttpStream(cppr::Uri uri) : sockfd{ -1 }, serv_addr{  }, host{ uri.h
 
     // TODO: Pass internet protocol to HttpStream ctor
     this->sockfd = Socket(AF_INET, SOCK_STREAM, 0);
-    if (this->sockfd == -1)
-    {
-        this->close();
-        throw std::system_error{ 
-            cpprerr::get_last_error(), std::system_category(), "Failed to open socket fd" 
-        };
-    }
 }
 
 
@@ -44,7 +37,8 @@ void HttpStream::winsock_init()
     if (error != 0)
         throw std::system_error{ error, std::system_category(), "WSAStartup failed" };
 
-    if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2) {
+    if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)
+    {
         fWSACleanup();
         throw std::runtime_error{ "Invalid WinSock version" };
     }
@@ -70,8 +64,8 @@ void HttpStream::init()
 {
     memset(&(this->serv_addr), 0, sizeof(this->serv_addr));
 
-    char domain_ip[INET6_ADDRSTRLEN];
-    memset(&domain_ip, 0, sizeof(domain_ip));
+    // char domain_ip[INET6_ADDRSTRLEN];
+    // memset(&domain_ip, 0, sizeof(domain_ip));
 
     // TODO: Convert lookup_host to take host as std::string
     // lookup_host(this->host.c_str(), domain_ip);
@@ -79,15 +73,9 @@ void HttpStream::init()
     // TODO: protocol agnostic
     this->serv_addr.sin_family = AF_INET;
     this->serv_addr.sin_port = Htons(static_cast<uint16_t>(atoi(this->port.c_str())));
+    this->serv_addr.sin_addr.s_addr = Inet_addr(this->host.c_str());;
 
-    this->serv_addr.sin_addr.s_addr = Inet_addr(this->host.c_str());
-
-    if (Connect(this->sockfd, (struct sockaddr *) &(this->serv_addr), sizeof(this->serv_addr)) < 0)
-    {
-        throw std::system_error{
-            cpprerr::get_last_error(), std::system_category(), "Socket failed to connect"
-        };
-    }
+    Connect(this->sockfd, (struct sockaddr*)&(this->serv_addr), sizeof(this->serv_addr));
 }
 
 
@@ -101,6 +89,8 @@ ssize_t HttpStream::data_stream(std::string write_buffer, char* read_buffer, siz
     while (remaining > 0)
     {
         size = Send(this->sockfd, send_data, remaining, 0);
+
+        // We handle the error here rather than in the Send wrapper so we can call fWSACleanup
         if (size == -1)
         {
             this->close();
@@ -134,7 +124,8 @@ ssize_t HttpStream::data_stream(std::string write_buffer, char* read_buffer, siz
 ssize_t read_n_bytes(int sockfd, char* recv_buff, size_t n)
 {
     int bytes_rcvd{ 0 };
-    do {
+    do
+    {
         bytes_rcvd = Recv(sockfd, recv_buff, n, 0);
     } while (bytes_rcvd > 0);
     return bytes_rcvd;
