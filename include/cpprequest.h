@@ -55,11 +55,32 @@ namespace cppr
 
     class Request
     {
+    private:
+#if defined(_WIN32) || defined(__CYGWIN__)
+        bool winsock_initialized;
+
+        /**
+         * @brief Initialize program for calling functions from Winsock.
+         *
+         * If on Windows, this function is called in the constructor and calls WSAStartup()
+         * as well as loads functions from ws2_lib.dll.
+         */
+        void winsock_init();
+#endif // defined(_WIN32) || defined(__CYGWIN__)
+
+        void init();
+
     protected:
         Uri uri;
         std::string method;
         HttpVersion http_version;
         Headers headers;
+
+        int sockfd;
+        struct sockaddr_in serv_addr;
+
+        std::string host;
+        std::string port;
 
         /**
          * @brief Write the request header for this object.
@@ -77,15 +98,20 @@ namespace cppr
          * @param port The port to send the request to.
          * @param http_version THe version of HTTP to use for the request.
          */
-        Request(std::string const uri,
-            std::string const method,
-            int const port = 80,
+        Request(std::string const uri, std::string const method, int const port = 80,
             HttpVersion const http_version = HttpVersion{ 1, 1 })
-        : uri{parse_uri(uri, std::to_string(port))},
-          method{method},
-          http_version{http_version},
-	      headers{Headers{}}
-        { ; }
+          : uri{parse_uri(uri, std::to_string(port))},
+            method{method},
+            http_version{http_version},
+	        headers{Headers{}},
+            sockfd{ -1 },
+            serv_addr{  },
+            host{ this->uri.host },
+            port{ this->uri.port }
+#if defined(_WIN32) || defined(__CYGWIN__)
+            , winsock_initialized{ false }
+#endif // defined(_WIN32) || defined(__CYGWIN__)
+        { this->init(); }
 
         /**
          * @brief Construct a request using the default HTTP port 80.
@@ -97,7 +123,8 @@ namespace cppr
         Request(std::string const uri,
             std::string const method,
             HttpVersion const version)
-        : Request(uri, method, 80, version) { ; }
+        : Request(uri, method, 80, version)
+        { ; }
 
         /**
          * @brief Send this request on the wire and fill out a Response object.
@@ -113,6 +140,8 @@ namespace cppr
          * @param value The value of the header key-value pair.
          */
         void add_header(std::string key, std::string value);
+
+        int close();
 
         virtual ~Request() = default;
     }; // class Request

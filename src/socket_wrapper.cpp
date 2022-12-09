@@ -145,10 +145,10 @@ ssize_t Recv(int sockfd, void* buffer, size_t len, int flags)
     while (result == -1 && cpprerr::get_last_error() == WSAEINTR)
         result = frecv(sockfd, reinterpret_cast<char*>(buffer), static_cast<int>(len), flags);
 #else
-    auto result = recv(sockfd, buffer, static_cast<int>(len), flags);
+    auto result = recv(sockfd, reinterpret_cast<char*>(buffer), static_cast<int>(len), flags);
 
     while (result == -1 && cpprerr::get_last_error() == EINTR)
-        result = frecv(sockfd, buffer, static_cast<int>(len), flags);
+        result = frecv(sockfd, reinterpret_cast<char*>(buffer), static_cast<int>(len), flags);
 
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
