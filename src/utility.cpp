@@ -56,6 +56,36 @@ static bool valid_url_query_char(char const c)
         (c == '~' || c == '=');
 }
 
+bool valid_header_value_char(const char c)
+{
+    // Printable characters
+    return (c >= 0x20 && c <= 0x7E);
+}
+
+
+// RFC 7230, 3.2.6. Field Value Components
+bool valid_header_key_char(const char c)
+{
+    return 
+        c == 0x21 || // !
+        c == 0x23 || // #
+        c == 0x24 || // $
+        c == 0x25 || // %
+        c == 0x26 || // &
+        c == 0x27 || // '
+        c == 0x2A || // *
+        c == 0x2B || // +
+        c == 0x2D || // -
+        c == 0x2E || // .
+        c == 0x5E || // ^
+        c == 0x5F || // _
+        c == 0x60 || // `
+        c == 0x7C || // |
+        c == 0x7E || // ~
+        is_alpha(c) ||
+        is_digit(c);
+};
+
 std::string url_encode(std::string const query)
 {
     // TODO: move to outer scope?

@@ -136,15 +136,14 @@ ssize_t Send(int sockfd, const char* buffer, size_t len, int flags)
 }
 
 
-// TODO: buf should be void instead of char
-ssize_t Recv(int sockfd, char* buffer, size_t len, int flags)
+ssize_t Recv(int sockfd, void* buffer, size_t len, int flags)
 {
 #if defined(_WIN32) || defined(__CYGWIN__)
     // auto result = recv(sockfd, reinterpret_cast<char*>(buffer), static_cast<int>(len), flags);
-    auto result = frecv(sockfd, buffer, static_cast<int>(len), flags);
+    auto result = frecv(sockfd, reinterpret_cast<char*>(buffer), static_cast<int>(len), flags);
 
     while (result == -1 && cpprerr::get_last_error() == WSAEINTR)
-        result = frecv(sockfd, buffer, static_cast<int>(len), flags);
+        result = frecv(sockfd, reinterpret_cast<char*>(buffer), static_cast<int>(len), flags);
 #else
     auto result = recv(sockfd, buffer, static_cast<int>(len), flags);
 

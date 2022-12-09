@@ -79,7 +79,7 @@ void HttpStream::init()
 }
 
 
-ssize_t HttpStream::data_stream(std::string write_buffer, char* read_buffer, size_t read_buff_size)
+ssize_t HttpStream::data_stream(std::string write_buffer, void* read_buffer, size_t read_buff_size)
 {
     int total, received, size;
     auto remaining = write_buffer.size();
@@ -106,7 +106,7 @@ ssize_t HttpStream::data_stream(std::string write_buffer, char* read_buffer, siz
     if (received == -1)
     {
         this->close();
-        cpprerr::SocketIoError{ "Socket error: Unable to read from the HTTP stream.\n" };
+        cpprerr::SocketIoError{ "Socket error: Unable to read from the HTTP stream." };
     }
 
     if (received == total)
@@ -121,7 +121,7 @@ ssize_t HttpStream::data_stream(std::string write_buffer, char* read_buffer, siz
 
 
 // TODO: error handling
-ssize_t read_n_bytes(int sockfd, char* recv_buff, size_t n)
+ssize_t read_n_bytes(int sockfd, void* recv_buff, size_t n)
 {
     int bytes_rcvd{ 0 };
     do

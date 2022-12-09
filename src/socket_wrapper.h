@@ -10,7 +10,7 @@ int Connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
 
 ssize_t Send(int sockfd, const char* buf, size_t len, int flags);
 
-ssize_t Recv(int sockfd, char* buf, size_t len, int flags);
+ssize_t Recv(int sockfd, void* buf, size_t len, int flags);
 
 int Socket(int domain, int type, int protocol);
 

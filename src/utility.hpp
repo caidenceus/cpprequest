@@ -7,6 +7,8 @@ std::string to_lower(const std::string str);
 bool is_white_space(char const c);
 bool is_digit(char const c);
 bool is_alpha(char const c);
+bool valid_header_key_char(const char c);
+bool valid_header_value_char(const char c);
 
 /**
 * @brief Escape characters in URIs with their percent codes.

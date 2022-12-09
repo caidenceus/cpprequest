@@ -41,7 +41,7 @@ public:
      */
     void init();
 
-    ssize_t data_stream(std::string write_buffer, char* read_buffer, size_t read_buff_size);
+    ssize_t data_stream(std::string write_buffer, void* read_buffer, size_t read_buff_size);
 
     /**
      * @brief Cleanup this HttpStream instance.
@@ -65,4 +65,4 @@ public:
  * @return The number of bytes read or -1 on error.
  */
 
-ssize_t read_n_bytes(int sockfd, char* buffer, size_t n);
+ssize_t read_n_bytes(int sockfd, void* buffer, size_t n);

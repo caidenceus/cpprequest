@@ -2,162 +2,159 @@
 #include "error.h"
 #include "includes.h"
 #include "utility.hpp"
+#include "response.h"
 
+#include <iostream>
 
-/**
- * @brief Get the status code from the status line of an HTTP response.
- * 
- * Raises a response error if http_line is not the status line of an HTTP response.
- * 
- * @param http_line The status line of an HTTP response.
- * @return The 3-digit HTTP status code in the status line of an HTTP response.
- */
-static uint16_t parse_status_code(const std::string http_line)
+template<class Iterator>
+static Iterator parse_status_code(Iterator begin, Iterator end, cppr::StatusLine &status_line)
 {
-	int digits = 0;
-	uint16_t result = 0;
+    std::string status_code{ "" };
 
-	for (auto it = http_line.begin(); digits < 3; ++it, ++digits) {
-		if (it == http_line.end() || ! is_digit(*it))
-			throw cpprerr::ResponseError{ "Invalid HTTP response" };
-		// Multiply the digit by 10^i where i is the ones place for the digit (3 - (digits + 1))
-		result += static_cast<uint16_t>(std::pow(10, 3 - (digits + 1))) * digit_to_uint<uint16_t>(*it);
-	}
+    auto i = begin;
+    while (i != end && is_digit(*i))
+        status_code.push_back(static_cast<char>(*i++));
 
-	return result;
+    if (std::distance(begin, i) != 3)
+        throw cpprerr::ResponseError{ "Invalid response" };
+
+    status_line.status_code = static_cast<std::uint16_t>(atoi(status_code.c_str()));
+    return i;
 }
 
 
-/**
- * @brief Parse a string for a valid HTTP version.
- *
- * Note: It is assumed that the string begins with "HTTP/".
- *
- * @param http_line The string to parse for an HTTP version.
- * @return The HTTP version associated with the HTTP version string.
- */
-static cppr::HttpVersion parse_http_version(std::string http_line)
+template<class Iterator>
+static Iterator parse_status_reason(Iterator begin, Iterator end, cppr::StatusLine &status_line)
 {
-    auto b = http_line.begin();
-    auto e = http_line.end();
+    std::string status_reason{ "" };
+    auto i = begin;
 
-    if (b == e || *b++ != 'H')
+    // TODO: there are more characters that can be in the reason phrase than alpha and whitespace
+    while (i != end && (is_alpha(*i) || is_white_space(*i)))
+        status_reason.push_back(static_cast<char>(*i++));
+
+    status_line.reason_phrase = status_reason;
+    return i;
+}
+
+
+template<class Iterator>
+static Iterator parse_http_version(Iterator begin, Iterator end, cppr::StatusLine &status_line)
+{
+    auto b = begin;
+
+    if (b == end || *b++ != 'H')
         throw cpprerr::ResponseError{ "Invalid HTTP version" };
-    if (b == e || *b++ != 'T')
+    if (b == end || *b++ != 'T')
         throw cpprerr::ResponseError{ "Invalid HTTP version" };
-    if (b == e || *b++ != 'T')
+    if (b == end || *b++ != 'T')
         throw cpprerr::ResponseError{ "Invalid HTTP version" };
-    if (b == e || *b++ != 'P')
+    if (b == end || *b++ != 'P')
         throw cpprerr::ResponseError{ "Invalid HTTP version" };
-    if (b == e || *b++ != '/')
+    if (b == end || *b++ != '/')
         throw cpprerr::ResponseError{ "Invalid HTTP version" };
 
-    if (b == e)
+    if (b == end)
         throw cpprerr::ResponseError{ "Invalid HTTP version" };
-
     const auto major_version = digit_to_uint<std::uint16_t>(*b++);
 
-    if (b == e || *b++ != '.')
+    if (b == end || *b++ != '.')
         throw cpprerr::ResponseError{ "Invalid HTTP version" };
 
-    if (b == e)
+    if (b == end)
         throw cpprerr::ResponseError{ "Invalid HTTP version" };
-
     const auto minor_version = digit_to_uint<std::uint16_t>(*b++);
 
-    // TODO: This is messy
-    switch (major_version)
+    status_line.http_version = cppr::HttpVersion{ major_version, minor_version };
+    return b;
+}
+
+
+template<class Iterator>
+static Iterator parse_status_line(Iterator begin, Iterator end, cppr::StatusLine &status_line)
+{
+    auto i = parse_http_version(begin, end, status_line);
+    if (i == end || *i++ != ' ')
+        throw cpprerr::ResponseError{ "Invalid HTTP response" };
+
+    i = parse_status_code(i, end, status_line);
+    if (i == end || *i++ != ' ')
+        throw cpprerr::ResponseError{ "Invalid HTTP response" };
+
+    i = parse_status_reason(i, end, status_line);
+    if (i == end || *i++ != '\r')
+        throw cpprerr::ResponseError{ "Invalid HTTP response" };
+
+    if (i == end || *i++ != '\n')
+        throw cpprerr::ResponseError{ "Invalid HTTP response" };
+
+    // i now points to the first character of the first header key
+    return i;
+}
+
+
+template<class Iterator>
+static Iterator parse_header(Iterator begin, Iterator end, cppr::Headers& headers)
+{
+    std::string header_key{ "" };
+    auto i = begin;
+
+    while (valid_header_key_char(*i))
+        header_key.push_back(*i++);
+
+    if (i == end || *i++ != ':')
+        throw cpprerr::ResponseError{ "Invalid response header" };
+    if (i == end || *i++ != ' ')
+        throw cpprerr::ResponseError{ "Invalid response header" };
+
+    std::string header_value{ "" };
+
+    while (valid_header_value_char(*i))
+        header_value.push_back(*i++);
+
+    if (i == end || *i++ != '\r')
+        throw cpprerr::ResponseError{ "Invalid response header" };
+    if (i == end || *i++ != '\n')
+        throw cpprerr::ResponseError{ "Invalid response header" };
+
+    headers.push_back(cppr::Header{ header_key, header_value });
+    return i;
+}
+
+
+template<class Iterator>
+static Iterator parse_headers(Iterator begin, Iterator end, cppr::Headers &headers)
+{
+    auto i = begin;
+    std::array<std::uint8_t, 2> crlf = { '\r', '\n' };
+    std::cout << "Parsing some headers\n\n";
+
+    while (1)
     {
-    case 0:
-        if (minor_version == 9)
-            return cppr::HttpVersion::ZeroDotNine;
-        throw cpprerr::HttpVersionError{ "Invalid HTTP version" };
-    case 1:
-        switch (minor_version)
-        {
-        case 0:
-            return cppr::HttpVersion::OneDotZero;
-        case 1:
-            return cppr::HttpVersion::OneDotOne;
-        default:
-            throw cpprerr::HttpVersionError{ "Invalid HTTP version" };
-        }
-    case 2:
-        if (minor_version == 0)
-            return cppr::HttpVersion::TwoDotZero;
-        throw cpprerr::HttpVersionError{ "Invalid HTTP version" };
-    case 3:
-        if (minor_version == 0)
-            return cppr::HttpVersion::ThreeDotZero;
-        throw cpprerr::HttpVersionError{ "Invalid HTTP version" };
-    default:
-        throw cpprerr::HttpVersionError{ "Invalid HTTP version" };
+        auto header_begin_iter = i;
+        auto header_end_iter = std::search(header_begin_iter, end, crlf.cbegin(), crlf.cend());
+        if (header_end_iter == end)
+            return i;
+        i = parse_header(i, end, headers);
     }
+    return i;
 }
 
 
-/**
- * @brief Sterilize the key-value pairs of headers from a multiline string of headers.
- * 
- * This function assumes that header_block is a multiline string of headers
- * and returns a datastructure of their key-value mappings as an std::pair.
- * 
- * Example:
- *     -> parse_headers("Host: 127.0.0.1\r\nAccept-Encoding: gzip, deflate\r\n");
- *     -> vector<pair<string, string>>{ pair{"Host", "127.0.0.1"}, pair{"Accept-Encoding", "gzip, deflate"} }
- * 
- * @param header_block The raw header string of an HTTP response excluding the status line.
- * @return The key-value mappings of the header fields in from the raw string.
- */
-static cppr::Headers parse_headers(std::string header_block)
+// This function assumes the raw response is saved in response.raw
+void parse_response(cppr::Response &r)
 {
-    // Store the header key-value pairs in rtn
-    cppr::Headers rtn{ };
+    std::array<std::uint8_t, 4> header_end = { '\r', '\n', '\r', '\n' };
+    const auto header_end_iter = std::search(
+        r.raw.cbegin(), r.raw.cend(), header_end.cbegin(), header_end.cend());
 
-    while (header_block.length() > 0) {
-        size_t line_break = header_block.find("\r\n");
-        if (line_break == std::string::npos) {
-            break;
-        }
-        std::string current_header = header_block.substr(0, line_break);
-
-        size_t delim = current_header.find(":");
-        if (delim == std::string::npos)
-            throw cpprerr::ParseError{ "Invalid HTTP header received" };
-        std::string header_key = current_header.substr(0, delim);
-
-        // delim + 2 to get substring after ": "
-        std::string header_value = current_header.substr(delim + 2);
-
-        rtn.push_back(cppr::Header{header_key, header_value});
-        header_block = header_block.substr(line_break + 1);
+    // TODO: Make this an error
+    if (header_end_iter == r.raw.cend())
+    {
+        std::cout << "Request failed";
+        return;
     }
-    return rtn;
-}
 
-
-void cppr::Response::parse_response()
-{
-	// Parse the status line
-	std::string raw_status_line = this->raw.substr(0, this->raw.find("\r\n"));
-
-    // Get the HTTP version
-	size_t http_version = raw_status_line.find(" ");
-	this->status_line.http_version = parse_http_version(raw_status_line.substr(0, http_version));
-	raw_status_line = raw_status_line.substr(http_version + 1);
-
-    // Get the status code and reason
-	size_t status_code = raw_status_line.find(" ");
-	this->status_line.status_code = parse_status_code(raw_status_line.substr(0, status_code));
-	this->status_line.reason_phrase = raw_status_line.substr(status_code + 1);
-
-	// Truncate the status line
-	this->raw = this->raw.substr(this->raw.find("\r\n") + 1);
-
-	// Parse the response headers. The + 2 is because we want \r\n at the end of the string
-	std::string header_block = this->raw.substr(0, this->raw.find("\r\n\r\n") + 2);
-    this->headers = parse_headers(header_block);
-
-	// After the headers, the rest of the response is the raw body
-	this->raw = this->raw.substr(this->raw.find("\r\n\r\n") + 4);
+    auto i = parse_status_line(r.raw.cbegin(), header_end_iter, r.status_line);
+    i = parse_headers(i, header_end_iter, r.headers);
 }

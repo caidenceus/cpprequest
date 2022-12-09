@@ -5,20 +5,18 @@
 
 namespace cppr
 {
-    enum class HttpVersion : std::uint8_t {
-        NoHttp,
-        ZeroDotNine,
-        OneDotZero,
-        OneDotOne,
-        TwoDotZero,
-        ThreeDotZero
+    struct HttpVersion final
+    {
+        uint16_t major;
+        uint16_t minor;
     };
 
     using Header = std::pair<std::string, std::string>;
     using Headers = std::vector<Header>;
 
     // RFC 3986 Section 3
-    struct Uri final {
+    struct Uri final
+    {
         std::string scheme{ };
         std::string user{ };
         std::string password{ };
@@ -39,105 +37,24 @@ namespace cppr
     Uri parse_uri(std::string uri, std::string port);
 
 
-    enum StatusCode : std::uint16_t
+    struct StatusLine final
     {
-        RequestNotSent = 999,
-
-        Continue = 100,
-        SwitchingProtocol = 101,
-        Processing = 102,
-        EarlyHints = 103,
-
-        Ok = 200,
-        Created = 201,
-        Accepted = 202,
-        NonAuthoritativeInformation = 203,
-        NoContent = 204,
-        ResetContent = 205,
-        PartialContent = 206,
-        MultiStatus = 207,
-        AlreadyReported = 208,
-        ImUsed = 226,
-
-        MultipleChoice = 300,
-        MovedPermanently = 301,
-        Found = 302,
-        SeeOther = 303,
-        NotModified = 304,
-        UseProxy = 305,
-        TemporaryRedirect = 307,
-        PermanentRedirect = 308,
-
-        BadRequest = 400,
-        Unauthorized = 401,
-        PaymentRequired = 402,
-        Forbidden = 403,
-        NotFound = 404,
-        MethodNotAllowed = 405,
-        NotAcceptable = 406,
-        ProxyAuthenticationRequired = 407,
-        RequestTimeout = 408,
-        Conflict = 409,
-        Gone = 410,
-        LengthRequired = 411,
-        PreconditionFailed = 412,
-        PayloadTooLarge = 413,
-        UriTooLong = 414,
-        UnsupportedMediaType = 415,
-        RangeNotSatisfiable = 416,
-        ExpectationFailed = 417,
-        MisdirectedRequest = 421,
-        UnprocessableEntity = 422,
-        Locked = 423,
-        FailedDependency = 424,
-        TooEarly = 425,
-        UpgradeRequired = 426,
-        PreconditionRequired = 428,
-        TooManyRequests = 429,
-        RequestHeaderFieldsTooLarge = 431,
-        UnavailableForLegalReasons = 451,
-
-        InternalServerError = 500,
-        NotImplemented = 501,
-        BadGateway = 502,
-        ServiceUnavailable = 503,
-        GatewayTimeout = 504,
-        HttpVersionNotSupported = 505,
-        VariantAlsoNegotiates = 506,
-        InsufficientStorage = 507,
-        LoopDetected = 508,
-        NotExtended = 510,
-        NetworkAuthenticationRequired = 511
-    };
-
-
-    struct StatusLine final {
         HttpVersion http_version;
-        uint16_t status_code;
+        std::uint16_t status_code;
         std::string reason_phrase;
     };
 
 
-    struct Response final {
-        StatusLine status_line{ HttpVersion::NoHttp, StatusCode::RequestNotSent, "error"};
+    struct Response final
+    {
+        StatusLine status_line{ HttpVersion{ 1, 1 }, 0, "request not sent" };
         Headers headers{};
-        size_t content_length{ 0 };
         std::string raw{};
-
-        Response() = default;
-        Response(const Response&) = default;
-        Response(Response&&) = default;
-        Response& operator=(Response&&) = default;
-        ~Response() = default;
-
-        /**
-         * @brief Parse the HTTP response to fill out the instance variables of this object. 
-         */
-        void parse_response();
     };
 
 
-    class Request {
+    class Request
+    {
     protected:
         Uri uri;
         std::string method;
@@ -163,7 +80,7 @@ namespace cppr
         Request(std::string const uri,
             std::string const method,
             int const port = 80,
-            HttpVersion const http_version = HttpVersion::OneDotOne)
+            HttpVersion const http_version = HttpVersion{ 1, 1 })
         : uri{parse_uri(uri, std::to_string(port))},
           method{method},
           http_version{http_version},
