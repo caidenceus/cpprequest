@@ -48,22 +48,6 @@ bool is_alpha(char const c)
 }
 
 
-// TODO: list all valid url characters
-static bool valid_url_query_char(char const c)
-{
-    return
-        (is_alpha(c) || is_digit(c)) ||
-        (c == '+' || c == '.' || c == '-' || c == '_') ||
-        (c == '~' || c == '=');
-}
-
-bool valid_header_value_char(const char c)
-{
-    // Printable characters
-    return (c >= 0x20 && c <= 0x7E);
-}
-
-
 // RFC 7230, 3.2.6. Field Value Components
 bool valid_header_key_char(const char c)
 {
@@ -87,35 +71,9 @@ bool valid_header_key_char(const char c)
         is_digit(c);
 };
 
-std::string url_encode(std::string const query)
+
+bool valid_header_value_char(const char c)
 {
-    // TODO: move to outer scope?
-    std::unordered_map<char, std::string> pe;
-
-    // TODO: add all percent encodings
-    pe[' '] = "%20";
-    pe['!'] = "%21";
-    pe['"'] = "%22";
-    pe['#'] = "%23";
-    pe['$'] = "%24";
-    pe['%'] = "%25";
-    pe['&'] = "%26";
-    pe['\''] = "%27";
-    pe['('] = "%28";
-    pe[')'] = "%29";
-    pe['*'] = "%2A";
-    pe[','] = "%2C";
-    pe['/'] = "%2F";
-
-    std::string percent_encoded;
-
-    for (auto it = query.begin(); it != query.end(); ++it) 
-    {
-        if (!valid_url_query_char(*it))
-            percent_encoded += pe[*it];
-        else
-            percent_encoded.push_back(*it);
-    }
-
-    return percent_encoded;
+    // Printable characters
+    return (c >= 0x20 && c <= 0x7E);
 }

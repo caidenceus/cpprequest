@@ -93,6 +93,8 @@ namespace cppr
 
         /**
          * @brief Send this request on the wire and fill out a Response object.
+         * 
+         * Note: The "Host: <host IP address>" header is used automatically.
          *
          * @param response The response object to store response data in.
          * @return The response status code or -1 on error.
@@ -101,6 +103,8 @@ namespace cppr
 
         /**
          * @brief Send a request and do not wait for a response. 
+         * 
+         * Note: The "Host: <host IP address>" header is used automatically.
          * 
          * @return 0 on success or -1 on error.
          */
@@ -113,6 +117,18 @@ namespace cppr
          * @param value The value of the header key-value pair.
          */
         void add_header(std::string key, std::string value);
+
+        /**
+         * @brief Add a URL parameter to the query.
+         * 
+         * Note: A request with URL parameters uses the
+         *       "Content-Type: application/x-www-form-urlencoded" and
+         *       "Content-Length: <size>" headers automatically.
+         * 
+         * @param key The key of the URL parameter.
+         * @param value The value of the URL parameter.
+         */
+        void add_url_parameter(std::string key, std::string value);
 
         /**
          * @breif Close socket descriptor and call WSACleanup if on Windwos. 

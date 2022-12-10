@@ -26,4 +26,13 @@ struct Uri final
  */
 Uri parse_uri(std::string uri, std::string port);
 
+
+/**
+ * @brief Replace reserved characters with percent encoded characters.
+ * 
+ * @param str The string to percent encode.
+ * @return The percent encoded string.
+ */
+std::string percent_encode(std::string str);
+
 #endif // CPPR_URI_H__

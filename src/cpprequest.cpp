@@ -5,12 +5,14 @@
 #include "loaddll.h"        // LoadDLLs
 #include "response.h"       // parse_response
 #include "socket_wrapper.h" // Socket, Connect, Htons, Inet_addr, Send, Recv
-#include "uri.h"            // Uri, parse_uri
+#include "uri.h"            // Uri, parse_uri, percent_encode
 #include "utility.hpp"      // to_string
 
 #include <array>
 #include <cstdint>
 #include <vector>
+
+#include <iostream>
 
 
 cppr::Request::Request(std::string const method, 
@@ -76,8 +78,19 @@ void cppr::Request::write_request_header(std::string &request_buffer)
     if (!host_header)
         request_buffer += "Host: " + this->uri.host + "\r\n";
 
+    // Add the Content-Type and Content-Length headers if necessary
+    if (this->method == "POST")
+    {
+        request_buffer += "Content-Type: application/x-www-form-urlencoded\r\n";
+        request_buffer += "Content-Length: " + std::to_string(this->uri.query.length()) + "\r\n";
+    }
+
     // Required \r\n after the request headers
     request_buffer += "\r\n";
+
+    if (this->method == "POST")
+        request_buffer += this->uri.query + "\r\n";
+    std::cout << request_buffer;
 }
 
 
@@ -163,14 +176,21 @@ void cppr::Request::add_header(std::string const key, std::string const value)
     this->headers.push_back(new_header);
 }
 
+void cppr::Request::add_url_parameter(std::string const key, std::string const value)
+{
+    // TODO: urlencode this data
+    this->uri.query += percent_encode(key) + "=" + percent_encode(value);
+}
+
 
 int cppr::Request::close()
 {
+    int rtn{ -1 };
+    if (this->sockfd != -1)
+        rtn = Close(this->sockfd);
 #if defined(_WIN32) || defined(__CYGWIN__)
     if (this->winsock_initialized)
         fWSACleanup();
 #endif // defined(_WIN32) || defined(__CYGWIN__)
-    if (this->sockfd != -1)
-        return Close(this->sockfd);
-    return 0;
+    return rtn;
 }
