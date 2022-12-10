@@ -1,16 +1,23 @@
 #pragma once
 
-#include "cpprequest.h"
+#include <cstdint>
 
-uint16_t Htons(uint16_t hostshort);
+#if defined(_WIN32) || defined(__CYGWIN__)
+#include <winsock2.h>
+#include <ws2tcpip.h> // socklen_t
+#else
+#include <sys/socket.h>
+#endif
 
-in_addr_t Inet_addr(const char* cp);
+std::uint16_t Htons(std::uint16_t hostshort);
+
+std::uint32_t Inet_addr(const char* cp);
 
 int Connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
 
-ssize_t Send(int sockfd, const char* buf, size_t len, int flags);
+int Send(int sockfd, const char* buf, size_t len, int flags);
 
-ssize_t Recv(int sockfd, void* buf, size_t len, int flags);
+int Recv(int sockfd, void* buf, size_t len, int flags);
 
 int Socket(int domain, int type, int protocol);
 

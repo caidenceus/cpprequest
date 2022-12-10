@@ -1,6 +1,7 @@
 #include "error.h"
 #include "includes.h"
 #include "loaddll.h"
+#include <cstdint>
 #include "socket_wrapper.h"
 
 
@@ -114,7 +115,7 @@ int Connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
 
 
 // TODO: buf should be void instead of char
-ssize_t Send(int sockfd, const char* buffer, size_t len, int flags)
+int Send(int sockfd, const char* buffer, size_t len, int flags)
 {
 #if defined(_WIN32) || defined(__CYGWIN__)
     // auto result = fsend(sockfd, reinterpret_cast<const char*>(buffer), static_cast<int>(length), 0);
@@ -132,11 +133,11 @@ ssize_t Send(int sockfd, const char* buffer, size_t len, int flags)
     if (result == -1)
         throw std::system_error{ cpprerr::get_last_error(), std::system_category(), "Failed to send data" };
 
-    return static_cast<ssize_t>(result);
+    return result;
 }
 
 
-ssize_t Recv(int sockfd, void* buffer, size_t len, int flags)
+int Recv(int sockfd, void* buffer, size_t len, int flags)
 {
 #if defined(_WIN32) || defined(__CYGWIN__)
     // auto result = recv(sockfd, reinterpret_cast<char*>(buffer), static_cast<int>(len), flags);
@@ -155,7 +156,7 @@ ssize_t Recv(int sockfd, void* buffer, size_t len, int flags)
     if (result == -1)
         throw std::system_error{ cpprerr::get_last_error(), std::system_category(), "Failed to read data" };
 
-    return static_cast<ssize_t>(result);
+    return result;
 }
 
 

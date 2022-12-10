@@ -1,9 +1,10 @@
-#include "config.h"
-#include "cpprequest.h"
-#include "error.h"
-#include "socket_wrapper.h"
-#include "utility.hpp"
-#include "response.h"  // void parse_response(Response &r)
+#include "config.h"         // HTTP_BUFF_SIZE
+#include "cpprequest.h"     // Request, HttpVersion 
+#include "error.h"          // get_last_error
+#include "loaddll.h"        // LoadDLLs
+#include "response.h"       // parse_response
+#include "socket_wrapper.h" // Socket, Connect, Htons, Inet_addr, Send, Recv
+#include "utility.hpp"      // to_string
 
 
 cppr::Request::Request(std::string const method, 
@@ -58,9 +59,16 @@ void cppr::Request::write_request_header(std::string &request_buffer)
     request_buffer += http_version_str + "\r\n";
 
     // Headers
+    bool host_header = false;
     for (auto it = this->headers.begin(); it != this->headers.end(); ++it)
+    {
+        if (!host_header && (to_lower((*it).first) == "host"))
+            host_header = true;
         request_buffer += (*it).first + ": " + (*it).second + "\r\n";
-    request_buffer += "Host: " + this->uri.host + "\r\n";
+    }
+
+    if (!host_header)
+        request_buffer += "Host: " + this->uri.host + "\r\n";
 
     // Required \r\n after the request headers
     request_buffer += "\r\n";
@@ -111,13 +119,8 @@ int cppr::Request::send(cppr::Response &response)
         remaining -= size;
     }
 
-    int bytes_rcvd{ 0 };
-    do
-    {
-        bytes_rcvd -= Recv(
-            this->sockfd, reinterpret_cast<char*>(response_buffer.data()), 
-            response_buffer.size(), 0);
-    } while (bytes_rcvd > 0);
+    // TODO: put this into while (1) loop to receive more than 4096 bytes
+    Recv(this->sockfd, reinterpret_cast<char*>(response_buffer.data()), response_buffer.size(), 0);
  
     response.raw = std::string{ reinterpret_cast<char*>(response_buffer.data()) };
     parse_response(response);

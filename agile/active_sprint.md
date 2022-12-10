@@ -10,9 +10,6 @@ Notes
 ### General
 	[X] Add an UNLICENSE to the root of the project
 		- Add an unlicense.txt file; for more information, please refer to <http://unlicense.org/>
-	[ ] Rewrite documentation for read_n_bytes and write_n_bytes
-		- We are using send and recv functions now rather than read and write
-		- Documentation to reflects the implementation change
 	[X] Write function and class docstrings in public library header files
 		- Functions and classes are documented using cygen style docstrings
 	[X] Move errors out of cppr, they should be in a separate file/namespace

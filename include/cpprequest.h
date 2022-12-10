@@ -1,8 +1,9 @@
-#pragma once
+#ifndef CPPREQUEST_H__
+#define CPPREQUEST_H__
 
-#include "../src/definition.h"
 #include "../src/includes.h"
 
+// TODO: move uri parsing and structures to separate file
 namespace cppr
 {
     struct HttpVersion final
@@ -131,4 +132,7 @@ namespace cppr
 
         ~Request() { this->close(); }
     }; // class Request
-}
+} // namespace cppr
+
+
+#endif // CPPREQUEST_H__
