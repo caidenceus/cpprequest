@@ -5,10 +5,7 @@
 #include "utility.hpp"
 #include "response.h"  // void parse_response(Response &r)
 
-#include <iostream>
 
-
-// TODO: move this into the ctor
 cppr::Request::Request(std::string const method, 
                        std::string const uri, 
                        int const port,
@@ -126,6 +123,26 @@ int cppr::Request::send(cppr::Response &response)
     parse_response(response);
 
     return response.status_line.status_code;
+}
+
+
+int cppr::Request::blind_send()
+{
+    // TODO: Consider making header a member variable and writing it only once
+    //       so that blind send can send requests faster
+    std::string request_buffer;
+    this->write_request_header(request_buffer);
+
+    int size = 0;
+    auto remaining = request_buffer.size();
+
+    while (remaining > 0)
+    {
+        size += Send(this->sockfd, request_buffer.c_str(), remaining, 0);
+        remaining -= size;
+    }
+    
+    return 0;
 }
 
 

@@ -105,8 +105,16 @@ namespace cppr
          * @brief Send this request on the wire and fill out a Response object.
          *
          * @param response The response object to store response data in.
+         * @return The response status code or -1 on error.
          */
         int send(Response &response);
+
+        /**
+         * @brief Send a request and do not wait for a response. 
+         * 
+         * @return 0 on success or -1 on error.
+         */
+        int blind_send();
 
         /**
          * @brief Add a header to this request object.
