@@ -1,10 +1,16 @@
-#include "config.h"         // HTTP_BUFF_SIZE
 #include "cpprequest.h"     // Request, HttpVersion 
+
+#include "config.h"         // HTTP_BUFF_SIZE
 #include "error.h"          // get_last_error
 #include "loaddll.h"        // LoadDLLs
 #include "response.h"       // parse_response
 #include "socket_wrapper.h" // Socket, Connect, Htons, Inet_addr, Send, Recv
+#include "uri.h"            // Uri, parse_uri
 #include "utility.hpp"      // to_string
+
+#include <array>
+#include <cstdint>
+#include <vector>
 
 
 cppr::Request::Request(std::string const method, 

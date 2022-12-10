@@ -1,9 +1,9 @@
-#include "cpprequest.h"
-#include "error.h"
-#include "utility.hpp"
+#include "uri.h"       // Uri
+
+#include "error.h"     // ParseError
+#include "utility.hpp" // is_alpha, is_digit
 
 #define NPOS std::string::npos
-
 
 static bool valid_uri_scheme_character(char const c)
 {
@@ -12,18 +12,17 @@ static bool valid_uri_scheme_character(char const c)
     return false;
 }
 
-
 // URI = scheme ":" ["//" authority] path ["?" query] ["#" fragment]
-cppr::Uri cppr::parse_uri(std::string uri, std::string port)
+Uri parse_uri(std::string uri, std::string port)
 {
-    size_t index;
-    cppr::Uri rtn;
+    Uri rtn;
     rtn.port = port;
 
     std::string::iterator head = uri.begin();
     std::string::iterator tail = uri.end();
 
-    if (head == tail || !is_alpha(*head)) {
+    if (head == tail || !is_alpha(*head))
+    {
         throw cpprerr::ParseError{
             "Invalid URI. Please refer to RFC 3986 Section 3: "
             "https://www.rfc-editor.org/rfc/rfc3986#section-3.1"
@@ -34,7 +33,8 @@ cppr::Uri cppr::parse_uri(std::string uri, std::string port)
         rtn.scheme.push_back(*head);
 
     std::string authority = std::string(head, tail);
-    if (head == tail || authority.substr(0, 3) != "://") {
+    if (head == tail || authority.substr(0, 3) != "://")
+    {
         throw cpprerr::ParseError{
             "Invalid URI. Please refer to RFC 3986 Section 3: "
             "https://www.rfc-editor.org/rfc/rfc3986#section-3.1"
@@ -43,7 +43,7 @@ cppr::Uri cppr::parse_uri(std::string uri, std::string port)
     authority = authority.substr(3);
 
     // Fragment appears at the end of the string
-    index = authority.find('#');
+    int index = authority.find('#');
     if (index != NPOS) {
         rtn.fragment = authority.substr(index + 1);
         authority.resize(index);

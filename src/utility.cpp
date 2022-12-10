@@ -1,6 +1,7 @@
-#include "cpprequest.h"
-#include "error.h"
 #include "utility.hpp"
+
+#include <string>
+#include <unordered_map>
 
 
 // RFC 7230, 3.2.3. WhiteSpace
@@ -108,12 +109,12 @@ std::string url_encode(std::string const query)
 
     std::string percent_encoded;
 
-    for (auto it = query.begin(); it != query.end(); ++it) {
-        if (!valid_url_query_char(*it)) {
+    for (auto it = query.begin(); it != query.end(); ++it) 
+    {
+        if (!valid_url_query_char(*it))
             percent_encoded += pe[*it];
-        } else {
+        else
             percent_encoded.push_back(*it);
-        }
     }
 
     return percent_encoded;

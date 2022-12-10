@@ -1,10 +1,13 @@
-#include "cpprequest.h"
-#include "error.h"
-#include "includes.h"
-#include "utility.hpp"
 #include "response.h"
 
-#include <iostream>
+#include "cpprequest.h" // Header, Headers, HttpVersion, Response, StatusLine
+#include "error.h"      // ResponseError, get_last_error
+#include "utility.hpp"  // digit_to_uint, is_alpha, is_digit, is_white_space, valid_header_key_char
+
+#include <algorithm> // search
+#include <array>
+#include <cstdint>
+#include <string>
 
 template<class Iterator>
 static Iterator parse_status_code(Iterator begin, Iterator end, cppr::StatusLine &status_line)
@@ -127,7 +130,6 @@ static Iterator parse_headers(Iterator begin, Iterator end, cppr::Headers &heade
 {
     auto i = begin;
     std::array<std::uint8_t, 2> crlf = { '\r', '\n' };
-    std::cout << "Parsing some headers\n\n";
 
     while (1)
     {
@@ -151,7 +153,6 @@ void parse_response(cppr::Response &r)
     // TODO: Make this an error
     if (header_end_iter == r.raw.cend())
     {
-        std::cout << "Request failed";
         return;
     }
 

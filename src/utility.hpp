@@ -1,6 +1,7 @@
-#pragma once
+#ifndef CPPR_UTILITY_HPP__
+#define CPPR_UTILITY_HPP__
 
-#include "includes.h"
+#include <string>
 
 char to_lower(const char c);
 std::string to_lower(const std::string str);
@@ -27,3 +28,5 @@ T digit_to_uint(const C c)
         return static_cast<T>(c - 0x30); // 0 - 9
     throw cpprerr::ResponseError{ "Invalid digit" };
 }
+
+#endif // CPPR_UTILITY_HPP__

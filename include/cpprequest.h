@@ -1,9 +1,19 @@
 #ifndef CPPREQUEST_H__
 #define CPPREQUEST_H__
 
-#include "../src/includes.h"
+#include "../src/uri.h" // Uri
 
-// TODO: move uri parsing and structures to separate file
+#include <cstdint>
+#include <string>
+#include <vector>
+#include <utility>
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+#include <winsock2.h>
+#else
+#include <sys/socket.h>
+#endif // defined(_WIN32) || defined(__CYGWIN__)
+
 namespace cppr
 {
     struct HttpVersion final
@@ -12,30 +22,9 @@ namespace cppr
         std::uint16_t minor;
     };
 
+
     using Header = std::pair<std::string, std::string>;
     using Headers = std::vector<Header>;
-
-    // RFC 3986 Section 3
-    struct Uri final
-    {
-        std::string scheme{ };
-        std::string user{ };
-        std::string password{ };
-        std::string host{ };
-        std::string port{ };
-        std::string path{ };
-        std::string query{ };
-        std::string fragment{ };
-    };
-
-    /**
-     * @brief Parse a URI and return a Uri object.
-     *
-     * @param uri The URI to parse.
-     * @param port The port to connect to. This is overridden if a port is specified in the URI.
-     * @return The filled URI object.
-     */
-    Uri parse_uri(std::string uri, std::string port);
 
 
     struct StatusLine final
@@ -127,6 +116,8 @@ namespace cppr
 
         /**
          * @breif Close socket descriptor and call WSACleanup if on Windwos. 
+         * 
+         * @return 0 on success, -1 otherwise.
          */
         int close();
 

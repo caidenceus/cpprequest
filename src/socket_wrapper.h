@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CPPR_SOCKET_WRAPPER_H__
+#define CPPR_SOCKET_WRAPPER_H__
 
 #include <cstdint>
 
@@ -22,3 +23,5 @@ int Recv(int sockfd, void* buf, size_t len, int flags);
 int Socket(int domain, int type, int protocol);
 
 int Close(int fd);
+
+#endif // CPPR_SOCKET_WRAPPER_H__

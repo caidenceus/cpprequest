@@ -1,6 +1,8 @@
-#pragma once
+#ifndef CPPR_LOADDLL_H__
+#define CPPR_LOADDLL_H__
 
-#include "cpprequest.h"
+#if defined(_WIN32) || defined(__CYGWIN__)
+#include <winsock2.h>
 
 // ws2_32.dll function variables
 typedef int (__stdcall *WSAS)(WORD, LPWSADATA);
@@ -70,3 +72,6 @@ extern CLSO fclosesocket;
 extern GSOCKOPT fgetsockopt;
 
 BOOL LoadDLLs(void);
+
+#endif // defined(_WIN32) || defined(__CYGWIN__)
+#endif // CPPR_LOADDLL_H__

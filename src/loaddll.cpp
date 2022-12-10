@@ -1,5 +1,7 @@
 #include "loaddll.h"
 
+#if defined(_WIN32) || defined(__CYGWIN__)
+
 WSAS fWSAStartup;
 WSASo fWSASocket;
 WSAAS fWSAAsyncSelect;
@@ -38,7 +40,8 @@ BOOL LoadDLLs(void)
     BOOL dlls_loaded { FALSE };
 
     HMODULE ws2_32_dll = LoadLibrary(TEXT("ws2_32.dll"));
-    if (ws2_32_dll) {
+    if (ws2_32_dll)
+    {
         fWSAStartup      = (WSAS)GetProcAddress(ws2_32_dll, "WSAStartup");
         fWSASocket       = (WSASo)GetProcAddress(ws2_32_dll, "WSASocketA");
         fWSAAsyncSelect  = (WSAAS)GetProcAddress(ws2_32_dll, "WSAAsyncSelect");
@@ -76,10 +79,13 @@ BOOL LoadDLLs(void)
             && fWSACleanup && fsocket && fioctlsocket && fconnect && finet_ntoa && finet_addr
             && fhtons && fhtonl && fntohs && fsend && fsendto && frecv && frecvfrom && fbind
             && fselect && flisten && faccept && fsetsockopt && fgetsockname && fgethostname
-            && fgethostbyname && fgethostbyaddr && fclosesocket && fgetsockopt) {
+            && fgethostbyname && fgethostbyaddr && fclosesocket && fgetsockopt)
+        {
             dlls_loaded = TRUE;
         }
     }
 
     return dlls_loaded;
 }
+
+#endif // defined(_WIN32) || defined(__CYGWIN__)

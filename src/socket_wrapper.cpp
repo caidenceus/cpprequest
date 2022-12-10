@@ -1,8 +1,16 @@
-#include "error.h"
-#include "includes.h"
-#include "loaddll.h"
-#include <cstdint>
 #include "socket_wrapper.h"
+
+#include "error.h"    // get_last_error
+#include "loaddll.h"  // fhtons, finet_addr, fsocket, fconnect, fsend, frecf, fclosesocket
+
+#include <cstdint>
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+#include <winsock2.h>
+#include <ws2tcpip.h> // socklen_t
+#else
+#include <sys/socket.h>
+#endif // defined(_WIN32) || defined(__CYGWIN__)
 
 
 std::uint16_t Htons(std::uint16_t hostshort)
