@@ -54,8 +54,10 @@ namespace cppr
 
         // Socket implementation variables
         int sockfd;
-        struct sockaddr_in serv_addr;
+        ADDRESS_FAMILY addr_family;
         std::string host;
+
+        // TODO: This should be std::uint16_t
         std::string port;
 
         /**
@@ -89,7 +91,9 @@ namespace cppr
         Request(std::string const method, 
                 std::string const uri, 
                 int const port = 80,
-                HttpVersion const http_version = HttpVersion{ 1, 1 });
+                HttpVersion const http_version = HttpVersion{ 1, 1 },
+                ADDRESS_FAMILY const addr_family = AF_INET
+            );
 
         /**
          * @brief Send this request on the wire and fill out a Response object.

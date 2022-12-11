@@ -12,19 +12,27 @@
 #include <cstdint>
 #include <vector>
 
+#if defined(_WIN32) || defined(__CYGWIN__)
+#include <winsock2.h>
+#else
+#include <sys/socket.h>
+#endif // defined(_WIN32) || defined(__CYGWIN__)
+
 #include <iostream>
 
 
 cppr::Request::Request(std::string const method, 
                        std::string const uri, 
                        int const port,
-                       HttpVersion const http_version) 
+                       HttpVersion const http_version,
+                       ADDRESS_FAMILY const addr_family
+) 
   : method{ method }, 
     uri{ parse_uri(uri, std::to_string(port)) }, 
     http_version{ http_version },
     headers{ Headers{} }, 
-    sockfd{ -1 }, 
-    serv_addr{  }, 
+    sockfd{ -1 },
+    addr_family{ addr_family }, 
     host{ this->uri.host }, 
     port{ this->uri.port }
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -35,22 +43,17 @@ cppr::Request::Request(std::string const method,
     this->winsock_init();
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
-    // TODO: Pass internet protocol to Request ctor
-    this->sockfd = Socket(AF_INET, SOCK_STREAM, 0);
-    memset(&(this->serv_addr), 0, sizeof(this->serv_addr));
+    struct sockaddr_in serv_addr;
 
-    // char domain_ip[INET6_ADDRSTRLEN];
-    // memset(&domain_ip, 0, sizeof(domain_ip));
+    this->sockfd = Socket(this->addr_family, SOCK_STREAM, 0);
+    memset(&serv_addr, 0, sizeof(serv_addr));
 
-    // TODO: Convert lookup_host to take host as std::string
-    // lookup_host(this->host.c_str(), domain_ip);
+    std::uint16_t int_port = static_cast<std::uint16_t>(atoi(this->port.c_str()));
+    serv_addr.sin_family = this->addr_family;
+    serv_addr.sin_port = Htons(int_port);
+    serv_addr.sin_addr.s_addr = Inet_addr(this->host.c_str());;
 
-    // TODO: protocol agnostic
-    this->serv_addr.sin_family = AF_INET;
-    this->serv_addr.sin_port = Htons(static_cast<std::uint16_t>(atoi(this->port.c_str())));
-    this->serv_addr.sin_addr.s_addr = Inet_addr(this->host.c_str());;
-
-    Connect(this->sockfd, (struct sockaddr*)&(this->serv_addr), sizeof(this->serv_addr));
+    Connect(this->sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr));
 }
 
 
