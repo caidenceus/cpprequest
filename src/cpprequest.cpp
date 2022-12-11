@@ -23,18 +23,18 @@
 
 cppr::Request::Request(std::string const method, 
                        std::string const uri, 
-                       int const port,
+                       std::uint16_t const port,
                        HttpVersion const http_version,
                        ADDRESS_FAMILY const addr_family
 ) 
   : method{ method }, 
-    uri{ parse_uri(uri, std::to_string(port)) }, 
+    uri{ parse_uri(uri, std::to_string(port)) }, // TODO: if port is in URI it gets overridden by port arguement
     http_version{ http_version },
     headers{ Headers{} }, 
     sockfd{ -1 },
     addr_family{ addr_family }, 
     host{ this->uri.host }, 
-    port{ this->uri.port }
+    port{ port }
 #if defined(_WIN32) || defined(__CYGWIN__)
     , winsock_initialized{ false }
 #endif // defined(_WIN32) || defined(__CYGWIN__)
@@ -45,13 +45,12 @@ cppr::Request::Request(std::string const method,
 
     struct sockaddr_in serv_addr;
 
-    this->sockfd = Socket(this->addr_family, SOCK_STREAM, 0);
+    this->sockfd = Socket(addr_family, SOCK_STREAM, 0);
     memset(&serv_addr, 0, sizeof(serv_addr));
 
-    std::uint16_t int_port = static_cast<std::uint16_t>(atoi(this->port.c_str()));
-    serv_addr.sin_family = this->addr_family;
-    serv_addr.sin_port = Htons(int_port);
-    serv_addr.sin_addr.s_addr = Inet_addr(this->host.c_str());;
+    serv_addr.sin_family = addr_family;
+    serv_addr.sin_port = Htons(port);
+    serv_addr.sin_addr.s_addr = Inet_addr(host.c_str());;
 
     Connect(this->sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr));
 }

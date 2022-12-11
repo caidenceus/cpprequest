@@ -56,9 +56,7 @@ namespace cppr
         int sockfd;
         ADDRESS_FAMILY addr_family;
         std::string host;
-
-        // TODO: This should be std::uint16_t
-        std::string port;
+        std::uint16_t port;
 
         /**
          * @brief Write the request header for this object.
@@ -90,7 +88,7 @@ namespace cppr
          */
         Request(std::string const method, 
                 std::string const uri, 
-                int const port = 80,
+                std::uint16_t const port = 80,
                 HttpVersion const http_version = HttpVersion{ 1, 1 },
                 ADDRESS_FAMILY const addr_family = AF_INET
             );
