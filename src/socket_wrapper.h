@@ -107,4 +107,12 @@ int Socket(int domain, int type, int protocol);
  */
 int Close(int fd);
 
+/**
+ * 
+ */
+int Getaddrinfo(const char* node,
+    const char* service,
+    const struct addrinfo* hints,
+    struct addrinfo** res);
+
 #endif // CPPR_SOCKET_WRAPPER_H__

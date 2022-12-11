@@ -176,3 +176,16 @@ int Close(int fd)
 	return close(fd);
 #endif // if defined(_WIN32) || defined(__CYGWIN__)
 }
+
+
+int Getaddrinfo(const char* node,
+    const char* service,
+    const struct addrinfo* hints,
+    struct addrinfo** res)
+{
+#if defined(_WIN32) || defined(__CYGWIN__)
+    return fgetaddrinfo(node, service, hints, res);
+#else
+    return getaddrinfo(node, service, hints, res);
+#endif // if defined(_WIN32) || defined(__CYGWIN__)
+}

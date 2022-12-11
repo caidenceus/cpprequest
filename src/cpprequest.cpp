@@ -43,16 +43,19 @@ cppr::Request::Request(std::string const method,
     this->winsock_init();
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
-    struct sockaddr_in serv_addr;
+    addrinfo* info;
+    addrinfo hints = {};
+    hints.ai_family = addr_family;
+    hints.ai_socktype = SOCK_STREAM;
 
-    this->sockfd = Socket(addr_family, SOCK_STREAM, 0);
-    memset(&serv_addr, 0, sizeof(serv_addr));
+    const char *char_port = this->uri.port.empty() ? std::to_string(port).c_str() : this->uri.port.c_str();
 
-    serv_addr.sin_family = addr_family;
-    serv_addr.sin_port = Htons(port);
-    serv_addr.sin_addr.s_addr = Inet_addr(host.c_str());;
+    std::string err = "Failed to get address info of " + this->uri.host;
+    if (Getaddrinfo(this->uri.host.c_str(), char_port, &hints, &info) != 0)
+        throw std::system_error{ cpprerr::get_last_error(), std::system_category(), err };
 
-    Connect(this->sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr));
+    this->sockfd = Socket(addr_family, SOCK_STREAM, IPPROTO_TCP);
+    Connect(this->sockfd, info->ai_addr, info->ai_addrlen);
 }
 
 
