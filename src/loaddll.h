@@ -38,6 +38,7 @@ typedef int (__stdcall *GPN)(SOCKET, struct sockaddr*, int *);
 typedef int (__stdcall *CLSO)(SOCKET);
 typedef int(__stdcall* GSOCKOPT)(SOCKET, int, int, char *, int *);
 typedef int(__stdcall* GAI)(const char*, const char*, const struct addrinfo*, struct addrinfo**);
+typedef int(__stdcall* FAI)(struct addrinfo*);
 
 extern WSAS fWSAStartup;
 extern WSASo fWSASocket;
@@ -72,6 +73,7 @@ extern GPN fgetpeername;
 extern CLSO fclosesocket;
 extern GSOCKOPT fgetsockopt;
 extern GAI fgetaddrinfo;
+extern FAI ffreeaddrinfo;
 
 BOOL LoadDLLs(void);
 

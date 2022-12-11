@@ -115,4 +115,9 @@ int Getaddrinfo(const char* node,
     const struct addrinfo* hints,
     struct addrinfo** res);
 
+/**
+ * 
+ */
+void Freeaddrinfo(struct addrinfo* ai);
+
 #endif // CPPR_SOCKET_WRAPPER_H__

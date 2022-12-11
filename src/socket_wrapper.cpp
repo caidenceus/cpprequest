@@ -189,3 +189,13 @@ int Getaddrinfo(const char* node,
     return getaddrinfo(node, service, hints, res);
 #endif // if defined(_WIN32) || defined(__CYGWIN__)
 }
+
+
+void Freeaddrinfo(struct addrinfo* ai)
+{
+#if defined(_WIN32) || defined(__CYGWIN__)
+    ffreeaddrinfo(ai);
+#else
+    freeaddrinfo(ai);
+#endif // if defined(_WIN32) || defined(__CYGWIN__)
+}

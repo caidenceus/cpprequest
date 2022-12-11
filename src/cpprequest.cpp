@@ -18,17 +18,19 @@
 #include <sys/socket.h>
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
+
 #include <iostream>
 
 
-cppr::Request::Request(std::string const method, 
-                       std::string const uri, 
-                       std::uint16_t const port,
-                       HttpVersion const http_version,
-                       ADDRESS_FAMILY const addr_family
-) 
-  : method{ method }, 
-    uri{ parse_uri(uri, std::to_string(port)) }, // TODO: if port is in URI it gets overridden by port arguement
+cppr::Request::Request(
+    std::string const method, 
+    std::string const uri, 
+    std::uint16_t const port,
+    HttpVersion const http_version,
+    ADDRESS_FAMILY const addr_family
+) : 
+    method{ method }, 
+    uri{ parse_uri(uri, std::to_string(port)) },
     http_version{ http_version },
     headers{ Headers{} }, 
     sockfd{ -1 },
@@ -48,7 +50,8 @@ cppr::Request::Request(std::string const method,
     hints.ai_family = addr_family;
     hints.ai_socktype = SOCK_STREAM;
 
-    const char *char_port = this->uri.port.empty() ? std::to_string(port).c_str() : this->uri.port.c_str();
+    const char *char_port =
+        this->uri.port.empty() ? std::to_string(port).c_str() : this->uri.port.c_str();
 
     std::string err = "Failed to get address info of " + this->uri.host;
     if (Getaddrinfo(this->uri.host.c_str(), char_port, &hints, &info) != 0)
@@ -56,6 +59,7 @@ cppr::Request::Request(std::string const method,
 
     this->sockfd = Socket(addr_family, SOCK_STREAM, IPPROTO_TCP);
     Connect(this->sockfd, info->ai_addr, info->ai_addrlen);
+    Freeaddrinfo(info);
 }
 
 
@@ -95,7 +99,6 @@ void cppr::Request::write_request_header(std::string &request_buffer)
 
     if (this->method == "POST")
         request_buffer += this->uri.query + "\r\n";
-    std::cout << request_buffer;
 }
 
 
@@ -133,6 +136,7 @@ int cppr::Request::send(cppr::Response &response)
 
     std::string request_buffer;
     this->write_request_header(request_buffer);
+    std::cout << request_buffer;
 
     int size = 0;
     auto remaining = request_buffer.size();

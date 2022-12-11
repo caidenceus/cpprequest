@@ -35,6 +35,7 @@ GPN fgetpeername;
 CLSO fclosesocket;
 GSOCKOPT fgetsockopt;
 GAI fgetaddrinfo;
+FAI ffreeaddrinfo;
 
 BOOL LoadDLLs(void)
 {
@@ -76,12 +77,14 @@ BOOL LoadDLLs(void)
         fclosesocket     = (CLSO)GetProcAddress(ws2_32_dll, "closesocket");
         fgetsockopt      = (GSOCKOPT)GetProcAddress(ws2_32_dll, "getsockopt");
         fgetaddrinfo     = (GAI)GetProcAddress(ws2_32_dll, "getaddrinfo");
+        ffreeaddrinfo    = (FAI)GetProcAddress(ws2_32_dll, "freeaddrinfo");
 
         if (fWSAStartup && fWSASocket && fWSAAsyncSelect && fWSAIoctl && fWSAGetLastError 
             && fWSACleanup && fsocket && fioctlsocket && fconnect && finet_ntoa && finet_addr
             && fhtons && fhtonl && fntohs && fsend && fsendto && frecv && frecvfrom && fbind
             && fselect && flisten && faccept && fsetsockopt && fgetsockname && fgethostname
-            && fgethostbyname && fgethostbyaddr && fclosesocket && fgetsockopt && fgetaddrinfo)
+            && fgethostbyname && fgethostbyaddr && fclosesocket && fgetsockopt && fgetaddrinfo
+            && ffreeaddrinfo)
         {
             dlls_loaded = TRUE;
         }
