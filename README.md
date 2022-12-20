@@ -11,7 +11,7 @@ A basic example of sending a GET request with the request line "GET /public/inde
 
 int main() {
     cppr::Response response_buff;
-    cppr::Get req{ "http://127.0.0.1/public/index.php" };
+    cppr::Request req{ "GET", "http://127.0.0.1/public/index.php" };
     req.request(response_buff);
 
     // Print the raw response
@@ -32,7 +32,7 @@ int main() {
     cppr::Response response_buff;
   
     // Send this request to port 8080
-    cppr::Get req{ "http://127.0.0.1/public/index.php", 8080 };
+    cppr::Request req{ "GET", "http://127.0.0.1/public/index.php", 8080 };
 
     req.add_header("Cache-Control": "no-cache");
     req.add_header("Connection", "Keep-Alive");
@@ -58,7 +58,7 @@ int main() {
     cppr::Response response_buff;
   
     // Send this request to port 8080
-    cppr::Post req{ "http://127.0.0.1/public/index.php?param1=value1&param2=value 2", 8080 };
+    cppr::Request req{ "POST",  "http://127.0.0.1/public/index.php?param1=value1&param2=value 2", 8080 };
     req.add_header("Cache-Control": "no-cache");
     req.request(response_buff);
   
@@ -79,7 +79,7 @@ int main() {
 
 int main() {
     cppr::Response response_buff;
-    cppr::Get req{ "http://127.0.0.1/public/index.php" };
+    cppr::Request req{ "GET", "http://127.0.0.1/public/index.php" };
     req.request(response_buff);
 
     // Print the raw response
@@ -130,10 +130,6 @@ link your_code.obj^
 popd
 ```
 
-## Supported C++ standards
-- C++ 17
-
-## Supported Operating Systems
 - Ubuntu Linux
 - Windows 10
 
