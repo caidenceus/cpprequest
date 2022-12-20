@@ -6,8 +6,9 @@
 #include <cstdint>
 
 #if defined(_WIN32) || defined(__CYGWIN__)
+#pragma push_macro("WIN32_LEAN_AND_MEAN")
 #include <winsock2.h>
-#include <ws2tcpip.h> // socklen_t
+#pragma pop_macro("WIN32_LEAN_AND_MEAN")
 #else
 #include <sys/socket.h>
 #endif // defined(_WIN32) || defined(__CYGWIN__)

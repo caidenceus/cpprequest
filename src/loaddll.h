@@ -2,7 +2,9 @@
 #define CPPR_LOADDLL_H__
 
 #if defined(_WIN32) || defined(__CYGWIN__)
+#pragma push_macro("WIN32_LEAN_AND_MEAN")
 #include <winsock2.h>
+#pragma pop_macro("WIN32_LEAN_AND_MEAN")
 
 // ws2_32.dll function variables
 typedef int (__stdcall *WSAS)(WORD, LPWSADATA);

@@ -1,6 +1,9 @@
 #include "loaddll.h"
 
 #if defined(_WIN32) || defined(__CYGWIN__)
+#pragma push_macro("WIN32_LEAN_AND_MEAN")
+#include <winsock2.h>
+#pragma pop_macro("WIN32_LEAN_AND_MEAN")
 
 WSAS fWSAStartup;
 WSASo fWSASocket;
@@ -42,8 +45,7 @@ BOOL LoadDLLs(void)
     BOOL dlls_loaded { FALSE };
 
     HMODULE ws2_32_dll = LoadLibrary(TEXT("ws2_32.dll"));
-    if (ws2_32_dll)
-    {
+    if (ws2_32_dll) {
         fWSAStartup      = (WSAS)GetProcAddress(ws2_32_dll, "WSAStartup");
         fWSASocket       = (WSASo)GetProcAddress(ws2_32_dll, "WSASocketA");
         fWSAAsyncSelect  = (WSAAS)GetProcAddress(ws2_32_dll, "WSAAsyncSelect");
