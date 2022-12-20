@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <string>
 
+
 template<class Iterator>
 static Iterator parse_status_code(Iterator begin, Iterator end, cppr::StatusLine &status_line)
 {
@@ -26,14 +27,15 @@ static Iterator parse_status_code(Iterator begin, Iterator end, cppr::StatusLine
 }
 
 
+// RFC 7239 Section 3.1.2
 template<class Iterator>
 static Iterator parse_status_reason(Iterator begin, Iterator end, cppr::StatusLine &status_line)
 {
     std::string status_reason{ "" };
     auto i = begin;
 
-    // TODO: there are more characters that can be in the reason phrase than alpha and whitespace
-    while (i != end && (is_alpha(*i) || is_white_space(*i)))
+    // reason-phrase  = *( HTAB / SP / VCHAR / obs-text )
+    while (i != end && is_visible_character(*i))
         status_reason.push_back(static_cast<char>(*i++));
 
     status_line.reason_phrase = status_reason;
@@ -84,6 +86,7 @@ static Iterator parse_status_line(Iterator begin, Iterator end, cppr::StatusLine
     if (i == end || *i++ != ' ')
         throw cpprerr::ResponseError{ "Invalid HTTP response" };
 
+    // This may be empty (RFC 7239 Section 3.1.2)
     i = parse_status_reason(i, end, status_line);
     if (i == end || *i++ != '\r')
         throw cpprerr::ResponseError{ "Invalid HTTP response" };
@@ -112,7 +115,7 @@ static Iterator parse_header(Iterator begin, Iterator end, cppr::Headers& header
 
     std::string header_value{ "" };
 
-    while (valid_header_value_char(*i))
+    while (is_visible_character(*i))
         header_value.push_back(*i++);
 
     if (i == end || *i++ != '\r')

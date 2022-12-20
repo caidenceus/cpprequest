@@ -44,6 +44,14 @@ bool is_digit(char const c);
 bool is_alpha(char const c);
 
 /**
+ * @brief Check it a character is an US ASCii visible character.
+ *
+ * @param c The character to check.
+ * @return True if c is a valid HTML field character, false otherwise.
+ */
+bool is_visible_character(const char c);
+
+/**
  * @brief Check it a character is a valid HTML header key character.
  *
  * @param c The character to check.
@@ -51,13 +59,6 @@ bool is_alpha(char const c);
  */
 bool valid_header_key_char(const char c);
 
-/**
- * @brief Check it a character is a valid HTML header field character.
- *
- * @param c The character to check.
- * @return True if c is a valid HTML field character, false otherwise.
- */
-bool valid_header_value_char(const char c);
 
 /**
  * @brief Cast a digit to an uintxx_t.

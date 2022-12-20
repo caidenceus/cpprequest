@@ -72,7 +72,7 @@ void cppr::Request::write_request_header(std::string &request_buffer)
     http_version_str += ".";
     http_version_str += std::to_string(this->http_version.minor);
 
-    // Request line
+    // RFC 7230 Section 3.1.1. Request line
     request_buffer += this->method + " ";
     request_buffer += this->uri.path + " ";
     request_buffer += http_version_str + "\r\n";

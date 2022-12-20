@@ -4,13 +4,6 @@
 #include <unordered_map>
 
 
-// RFC 7230, 3.2.3. WhiteSpace
-bool is_white_space(char const c)
-{
-    return c == 0x20 || c == 0x09; // space or tab
-}
-
-
 // Lowercase a character
 char to_lower(const char c)
 {
@@ -32,6 +25,13 @@ std::string to_lower(const std::string str)
 }
 
 
+// RFC 7230, 3.2.3. WhiteSpace
+bool is_white_space(char const c)
+{
+    return c == 0x20 || c == 0x09; // space or tab
+}
+
+
 // RFC 5234, Appendix B.1. Core Rules
 bool is_digit(char const c)
 {
@@ -45,6 +45,13 @@ bool is_alpha(char const c)
     return
         (c >= 0x61 && c <= 0x7A) || // a - z
         (c >= 0x41 && c <= 0x5A); // A - Z
+}
+
+
+// Printable US ASCii characters (incluides is_alpha, is_digit, and is_white_space)
+bool is_visible_character(const char c)
+{
+    return (c >= 0x20 && c <= 0x7F);
 }
 
 
@@ -70,10 +77,3 @@ bool valid_header_key_char(const char c)
         is_alpha(c) ||
         is_digit(c);
 };
-
-
-bool valid_header_value_char(const char c)
-{
-    // Printable characters
-    return (c >= 0x20 && c <= 0x7E);
-}
