@@ -92,7 +92,7 @@ namespace cppr
                 std::string const uri, 
                 std::uint16_t const port = 80,
                 HttpVersion const http_version = HttpVersion{ 1, 1 },
-                ADDRESS_FAMILY const addr_family = AF_INET
+                ADDRESS_FAMILY const addr_family = AF_UNSPEC
             );
 
         /**

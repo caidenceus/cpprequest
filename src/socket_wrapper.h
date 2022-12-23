@@ -110,7 +110,26 @@ int Socket(int domain, int type, int protocol);
 int Close(int fd);
 
 /**
+ * @brief Get a linked list of addrinfo structures filtered by hints.
  * 
+ * The addrinfo structure used by getaddrinfo() contains the
+ * following fields:
+ *
+ *          struct addrinfo {
+ *              int              ai_flags;
+ *              int              ai_family;
+ *              int              ai_socktype;
+ *              int              ai_protocol;
+ *              socklen_t        ai_addrlen;
+ *              struct sockaddr *ai_addr;
+ *              char            *ai_canonname;
+ *              struct addrinfo *ai_next;
+ *          };
+ * 
+ * @param node A domain name or an IPv4 or IPv6 address.
+ * @param service A port number or service name (i.e. "http").
+ * @param hints An addrinfo structure used to filter the results.
+ * @param res The pointer to the head of the addrinfo linked list.
  */
 int Getaddrinfo(const char* node,
     const char* service,
@@ -118,7 +137,7 @@ int Getaddrinfo(const char* node,
     struct addrinfo** res);
 
 /**
- * 
+ * @brief Free memory used by linked list created from Getaddrinfo.
  */
 void Freeaddrinfo(struct addrinfo* ai);
 

@@ -49,17 +49,18 @@ cppr::Request::Request(
 
     addrinfo* info;
     addrinfo hints = {};
-    hints.ai_family = addr_family;
+    hints.ai_family = addr_family; // AF_UNSPEC is the default
     hints.ai_socktype = SOCK_STREAM;
 
     const char *char_port =
         this->uri.port.empty() ? std::to_string(port).c_str() : this->uri.port.c_str();
 
-    std::string err = "Failed to get address info of " + this->uri.host;
-    if (Getaddrinfo(this->uri.host.c_str(), char_port, &hints, &info) != 0)
-        throw std::system_error{ cpprerr::get_last_error(), std::system_category(), err };
+    if (Getaddrinfo(this->uri.host.c_str(), char_port, &hints, &info) != 0) {
+        throw std::system_error{ 
+            cpprerr::get_last_error(), std::system_category(), "Getaddrinfo failed" };
+    }
 
-    this->sockfd = Socket(addr_family, SOCK_STREAM, IPPROTO_TCP);
+    this->sockfd = Socket(info->ai_family, info->ai_socktype, info->ai_protocol);
     Connect(this->sockfd, info->ai_addr, info->ai_addrlen);
     Freeaddrinfo(info);
 }

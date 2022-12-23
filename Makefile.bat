@@ -5,6 +5,7 @@ cl^
   -Zi^
   -EHsc^
   -W4^
+  -std:c++17^
   -I "../src/"^
   -I "../include/"^
   -c^
