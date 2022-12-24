@@ -88,12 +88,13 @@ namespace cppr
          * @param port The port to send the request to.
          * @param http_version THe version of HTTP to use for the request.
          */
-        Request(std::string const method, 
-                std::string const uri, 
-                std::uint16_t const port = 80,
-                HttpVersion const http_version = HttpVersion{ 1, 1 },
-                ADDRESS_FAMILY const addr_family = AF_UNSPEC
-            );
+        Request(
+            std::string const method, 
+            std::string const uri, 
+            std::uint16_t const port = 80,
+            HttpVersion const http_version = HttpVersion{ 1, 1 },
+            ADDRESS_FAMILY const addr_family = AF_UNSPEC
+        );
 
         /**
          * @brief Send this request on the wire and fill out a Response object.

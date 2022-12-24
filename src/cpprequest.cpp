@@ -17,7 +17,9 @@
 #include <winsock2.h>
 #pragma pop_macro("WIN32_LEAN_AND_MEAN")
 #else
+#include <netdb.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
 
@@ -48,7 +50,9 @@ cppr::Request::Request(
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
     addrinfo* info;
-    addrinfo hints = {};
+    addrinfo hints;
+
+    memset(&hints, 0, sizeof(hints));
     hints.ai_family = addr_family; // AF_UNSPEC is the default
     hints.ai_socktype = SOCK_STREAM;
 
@@ -79,20 +83,27 @@ void cppr::Request::write_request_header(std::string &request_buffer)
     request_buffer += http_version_str + "\r\n";
 
     // Headers
-    bool host_header = false;
-    for (auto it = this->headers.begin(); it != this->headers.end(); ++it)
-    {
-        if (!host_header && (to_lower((*it).first) == "host"))
+    bool host_header{ false };
+    bool user_agent{ false };
+    for (auto it = this->headers.begin(); it != this->headers.end(); ++it) {
+        if (!host_header && (to_lower((*it).first) == "host")) {
             host_header = true;
+        }
+        else if (!user_agent && (to_lower((*it).first) == "user-agent")) {
+            user_agent = true;
+        }
+
         request_buffer += (*it).first + ": " + (*it).second + "\r\n";
     }
 
     if (!host_header)
         request_buffer += "Host: " + this->uri.host + "\r\n";
 
+    if (!user_agent)
+        request_buffer += "User-Agent: " + std::string{ DEFAULT_USER_AGENT } + "\r\n";
+
     // Add the Content-Type and Content-Length headers if necessary
-    if (this->method == "POST")
-    {
+    if (this->method == "POST") {
         request_buffer += "Content-Type: application/x-www-form-urlencoded\r\n";
         request_buffer += "Content-Length: " + std::to_string(this->uri.query.length()) + "\r\n";
     }
@@ -110,8 +121,7 @@ void cppr::Request::winsock_init()
 {
     BOOL dlls_loaded = LoadDLLs();
 
-    if (!dlls_loaded)
-    {
+    if (!dlls_loaded) {
         std::string msg = "Unable to load DLLs";
         throw std::system_error{cpprerr::get_last_error(), std::system_category(), msg};
     }
@@ -121,8 +131,7 @@ void cppr::Request::winsock_init()
     if (error != 0)
         throw std::system_error{ error, std::system_category(), "WSAStartup failed" };
 
-    if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)
-    {
+    if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2) {
         fWSACleanup();
         throw std::runtime_error{ "Invalid WinSock version" };
     }
@@ -137,15 +146,14 @@ int cppr::Request::send(cppr::Response &response)
     std::array<std::uint8_t, HTTP_BUFF_SIZE> response_buffer;
     std::vector<std::uint8_t> raw_response;
 
-    std::string request_buffer;
+    std::string request_buffer{};
     this->write_request_header(request_buffer);
-    std::cout << request_buffer;
+    std::cout << request_buffer;  // Debug
 
     int size = 0;
     auto remaining = request_buffer.size();
 
-    while (remaining > 0)
-    {
+    while (remaining > 0) {
         size += Send(this->sockfd, request_buffer.c_str(), remaining, 0);
         remaining -= size;
     }
@@ -170,8 +178,7 @@ int cppr::Request::blind_send()
     int size = 0;
     auto remaining = request_buffer.size();
 
-    while (remaining > 0)
-    {
+    while (remaining > 0) {
         size += Send(this->sockfd, request_buffer.c_str(), remaining, 0);
         remaining -= size;
     }
