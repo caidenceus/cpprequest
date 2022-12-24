@@ -30,8 +30,7 @@ std::uint32_t Inet_addr(const char* cp)
 #if defined(_WIN32) || defined(__CYGWIN__)
      std::uint32_t net_byte_order_addr = finet_addr(cp);
 
-    if (net_byte_order_addr == INADDR_NONE)
-    {
+    if (net_byte_order_addr == INADDR_NONE) {
         std::string msg = "(INET_ADDR) invalid IPv4 address";
         throw std::system_error{ cpprerr::get_last_error(), std::system_category(), msg };
     }
@@ -48,8 +47,7 @@ int Socket(int domain, int type, int protocol)
 #if defined(_WIN32) || defined(__CYGWIN__)
     int sock = fsocket(domain, type, protocol);
 
-    if (sock == INVALID_SOCKET)
-    {
+    if (sock == INVALID_SOCKET) {
         const auto error = cpprerr::get_last_error();
         std::string msg{ "(SOCKET) " };
 
@@ -85,8 +83,7 @@ int Connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
     while (result == SOCKET_ERROR && cpprerr::get_last_error() == WSAEINTR)
         result = fconnect(sockfd, addr, addrlen);
 
-    if (result == SOCKET_ERROR)
-    {
+    if (result == SOCKET_ERROR) {
         const auto error = cpprerr::get_last_error();
         std::string msg{ "(CONNECT) " };
 

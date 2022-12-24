@@ -12,14 +12,19 @@
 #include <cstdint>
 #include <vector>
 
+
 #if defined(_WIN32) || defined(__CYGWIN__)
 #pragma push_macro("WIN32_LEAN_AND_MEAN")
+#include <Windows.h>
 #include <winsock2.h>
 #pragma pop_macro("WIN32_LEAN_AND_MEAN")
 #else
 #include <netdb.h>
+#include <sys/select.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <sys/types.h>
+#include <unistd.h> // Sleep
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
 
@@ -143,25 +148,61 @@ void cppr::Request::winsock_init()
 
 int cppr::Request::send(cppr::Response &response)
 {
-    std::array<std::uint8_t, HTTP_BUFF_SIZE> response_buffer;
-    std::vector<std::uint8_t> raw_response;
-
+    // Write to socket
     std::string request_buffer{};
     this->write_request_header(request_buffer);
     std::cout << request_buffer;  // Debug
-
-    int size = 0;
-    auto remaining = request_buffer.size();
+    int size{ 0 };
+    auto remaining{ request_buffer.size() };
 
     while (remaining > 0) {
         size += Send(this->sockfd, request_buffer.c_str(), remaining, 0);
         remaining -= size;
     }
 
-    // TODO: put this into while (1) loop to receive more than 4096 bytes
-    Recv(this->sockfd, reinterpret_cast<char*>(response_buffer.data()), response_buffer.size(), 0);
+    // Read from socket
+    std::array<std::uint8_t, HTTP_BUFF_SIZE> response_buffer;
+    std::vector<std::uint8_t> raw_response{};
+    size = 0;
+    int retries = 3;
+
+    fd_set rset;
+    FD_ZERO(&rset);
+
+    // 0.1 second timeout
+    struct timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 100000;
+
+    while (retries > 0) {
+        FD_SET(static_cast<std::uint16_t>(this->sockfd), &rset);
+        // TODO write wrapper function for select
+        if ((select(this->sockfd + 1, &rset, NULL, NULL, &tv)) == -1) {
+            // TODO throw error
+            std::cout << "Error polling from socket";
+            exit(-1);
+        }
+
+        // Socket is readable
+        if (FD_ISSET(this->sockfd, &rset)) {
+            size = Recv(
+                this->sockfd,
+                reinterpret_cast<char*>(response_buffer.data()),
+                response_buffer.size(), 0
+            );
+
+            // Other end closed connection gracefully
+            if (size == 0)
+                break;
+            raw_response.insert(
+                raw_response.end(), response_buffer.begin(), response_buffer.begin() + size);
+        }
+        else {
+            retries--;
+        }
+    }    
  
-    response.raw = std::string{ reinterpret_cast<char*>(response_buffer.data()) };
+    response.raw = std::string{ reinterpret_cast<char*>(raw_response.data()) };
     parse_response(response);
 
     return response.status_line.status_code;
