@@ -16,7 +16,7 @@
 #if defined(_WIN32) || defined(__CYGWIN__)
 #pragma push_macro("WIN32_LEAN_AND_MEAN")
 #include <Windows.h>
-#include <winsock2.h>
+#include <Winsock2.h>
 #pragma pop_macro("WIN32_LEAN_AND_MEAN")
 #else
 #include <netdb.h>
@@ -24,7 +24,6 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <unistd.h> // Sleep
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
 
@@ -37,7 +36,7 @@ cppr::Request::Request(
     std::uint16_t const port,
     HttpVersion const http_version,
     ADDRESS_FAMILY const addr_family
-) : 
+) :
     method{ method }, 
     uri{ parse_uri(uri, std::to_string(port)) },
     http_version{ http_version },
@@ -164,23 +163,34 @@ int cppr::Request::send(cppr::Response &response)
     std::array<std::uint8_t, HTTP_BUFF_SIZE> response_buffer;
     std::vector<std::uint8_t> raw_response{};
     size = 0;
-    int retries = 3;
+    int retries{ 3 };
+    int selection{};
 
     fd_set rset;
-    FD_ZERO(&rset);
-
-    // 0.1 second timeout
     struct timeval tv;
-    tv.tv_sec = 0;
-    tv.tv_usec = 100000;
 
     while (retries > 0) {
-        FD_SET(static_cast<std::uint16_t>(this->sockfd), &rset);
+        // Some Linux versions modify the timeval structure in select,
+        // so for portability we reinitialize it with every select call
+        tv.tv_sec = 0;
+        tv.tv_usec = 100000; // 0.1 second timeout
+
+        // Add sockfd to the set
+        FD_ZERO(&rset); // Zero all fd bits in the set
+        FD_SET(static_cast<unsigned int>(this->sockfd), &rset);
+
         // TODO write wrapper function for select
-        if ((select(this->sockfd + 1, &rset, NULL, NULL, &tv)) == -1) {
+        selection = select(this->sockfd + 1, &rset, NULL, NULL, &tv);
+        if (selection == -1) {
             // TODO throw error
             std::cout << "Error polling from socket";
             exit(-1);
+        }
+
+        // Select timeout
+        else if (selection == 0) {
+            retries--;
+            continue;
         }
 
         // Socket is readable
@@ -197,6 +207,7 @@ int cppr::Request::send(cppr::Response &response)
             raw_response.insert(
                 raw_response.end(), response_buffer.begin(), response_buffer.begin() + size);
         }
+        // No data waiting to be read
         else {
             retries--;
         }

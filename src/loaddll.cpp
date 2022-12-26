@@ -90,6 +90,8 @@ BOOL LoadDLLs(void)
         {
             dlls_loaded = TRUE;
         }
+
+        FreeLibrary(ws2_32_dll);
     }
 
     return dlls_loaded;
