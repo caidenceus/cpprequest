@@ -56,7 +56,7 @@ namespace cppr
 
         // Socket implementation variables
         int sockfd;
-        ADDRESS_FAMILY addr_family;
+        int addr_family;
         std::string host;
         std::uint16_t port;
 
@@ -82,23 +82,23 @@ namespace cppr
     public:
         /**
          * @brief Construct a request object.
-         * 
+         *
          * @param method The request method (GET, POST, DELETE, etc.).
          * @param uri The URI string.
          * @param port The port to send the request to.
          * @param http_version THe version of HTTP to use for the request.
          */
         Request(
-            std::string const method, 
-            std::string const uri, 
-            std::uint16_t const port = 80,
-            HttpVersion const http_version = HttpVersion{ 1, 1 },
-            ADDRESS_FAMILY const addr_family = AF_UNSPEC
+            const std::string method,
+            const std::string uri,
+            const std::uint16_t port = 80,
+            const HttpVersion http_version = HttpVersion{ 1, 1 },
+            const int addr_family = AF_UNSPEC
         );
 
         /**
          * @brief Send this request on the wire and fill out a Response object.
-         * 
+         *
          * Note: The "Host: <host IP address>" header is used automatically.
          *
          * @param response The response object to store response data in.
@@ -107,10 +107,10 @@ namespace cppr
         int send(Response &response);
 
         /**
-         * @brief Send a request and do not wait for a response. 
-         * 
+         * @brief Send a request and do not wait for a response.
+         *
          * Note: The "Host: <host IP address>" header is used automatically.
-         * 
+         *
          * @return 0 on success or -1 on error.
          */
         int blind_send();
@@ -125,19 +125,19 @@ namespace cppr
 
         /**
          * @brief Add a URL parameter to the query.
-         * 
+         *
          * Note: A request with URL parameters uses the
          *       "Content-Type: application/x-www-form-urlencoded" and
          *       "Content-Length: <size>" headers automatically.
-         * 
+         *
          * @param key The key of the URL parameter.
          * @param value The value of the URL parameter.
          */
         void add_url_parameter(std::string key, std::string value);
 
         /**
-         * @breif Close socket descriptor and call WSACleanup if on Windwos. 
-         * 
+         * @breif Close socket descriptor and call WSACleanup if on Windwos.
+         *
          * @return 0 on success, -1 otherwise.
          */
         int close();

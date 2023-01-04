@@ -1,4 +1,4 @@
-#include "cpprequest.h"     // Request, HttpVersion 
+#include "cpprequest.h"     // Request, HttpVersion
 
 #include "config.h"         // HTTP_BUFF_SIZE
 #include "error.h"          // get_last_error
@@ -10,6 +10,7 @@
 
 #include <array>
 #include <cstdint>
+#include <string>
 #include <vector>
 
 
@@ -19,6 +20,7 @@
 #include <Winsock2.h>
 #pragma pop_macro("WIN32_LEAN_AND_MEAN")
 #else
+#include <cstring>
 #include <netdb.h>
 #include <sys/select.h>
 #include <sys/socket.h>
@@ -31,19 +33,19 @@
 
 
 cppr::Request::Request(
-    std::string const method, 
-    std::string const uri, 
-    std::uint16_t const port,
-    HttpVersion const http_version,
-    ADDRESS_FAMILY const addr_family
+    const std::string method,
+    const std::string uri,
+    const std::uint16_t port,
+    const HttpVersion http_version,
+    const int addr_family
 ) :
-    method{ method }, 
+    method{ method },
     uri{ parse_uri(uri, std::to_string(port)) },
     http_version{ http_version },
-    headers{ Headers{} }, 
+    headers{ Headers{} },
     sockfd{ -1 },
-    addr_family{ addr_family }, 
-    host{ this->uri.host }, 
+    addr_family{ addr_family },
+    host{ this->uri.host },
     port{ port }
 #if defined(_WIN32) || defined(__CYGWIN__)
     , winsock_initialized{ false }
@@ -64,7 +66,7 @@ cppr::Request::Request(
         this->uri.port.empty() ? std::to_string(port).c_str() : this->uri.port.c_str();
 
     if (Getaddrinfo(this->uri.host.c_str(), char_port, &hints, &info) != 0) {
-        throw std::system_error{ 
+        throw std::system_error{
             cpprerr::get_last_error(), std::system_category(), "Getaddrinfo failed" };
     }
 
@@ -151,11 +153,13 @@ int cppr::Request::send(cppr::Response &response)
     std::string request_buffer{};
     this->write_request_header(request_buffer);
     // std::cout << request_buffer;  // Debug
-    int size{ 0 };
-    auto remaining{ request_buffer.size() };
+    size_t size{ 0 };
+    size_t remaining{ request_buffer.size() };
 
+    // TODO: Improper logic
     while (remaining > 0) {
-        size += Send(this->sockfd, request_buffer.c_str(), remaining, 0);
+        // Casting here is ok since error handling is done inside of Send
+        size += static_cast<size_t>(Send(this->sockfd, request_buffer.c_str(), remaining, 0));
         remaining -= size;
     }
 
@@ -195,10 +199,14 @@ int cppr::Request::send(cppr::Response &response)
 
         // Socket is readable
         if (FD_ISSET(this->sockfd, &rset)) {
-            size = Recv(
-                this->sockfd,
-                reinterpret_cast<char*>(response_buffer.data()),
-                response_buffer.size(), 0
+            // Casting here is ok because error handling is done inside of Recv
+            size = static_cast<size_t>(
+                Recv(
+                    this->sockfd,
+                    reinterpret_cast<char*>(response_buffer.data()),
+                    response_buffer.size(),
+                    0
+                )
             );
 
             // Other end closed connection gracefully
@@ -211,8 +219,8 @@ int cppr::Request::send(cppr::Response &response)
         else {
             retries--;
         }
-    }    
- 
+    }
+
     response.raw = std::string{ reinterpret_cast<char*>(raw_response.data()) };
     parse_response(response);
 
@@ -227,14 +235,15 @@ int cppr::Request::blind_send()
     std::string request_buffer;
     this->write_request_header(request_buffer);
 
-    int size = 0;
-    auto remaining = request_buffer.size();
+    size_t size = 0;
+    size_t remaining = request_buffer.size();
 
     while (remaining > 0) {
-        size += Send(this->sockfd, request_buffer.c_str(), remaining, 0);
+        // Casting here is ok because error handling is done inside of Send
+        size += static_cast<size_t>(Send(this->sockfd, request_buffer.c_str(), remaining, 0));
         remaining -= size;
     }
-    
+
     return 0;
 }
 

@@ -10,7 +10,7 @@ CPPFLAGS = -I./include/ -I./src/ -Wall -Wextra -Werror -Wsign-conversion -Weffc+
 OBJECTS = $(addprefix $(OBJ), cpprequest.o error.o response.o socket_wrapper.o uri.o utility.o)
 
 
-$(OBJECTS): $(OBJ)%.o: $(SRC)%.cpp ./include/cpprequest.h $(SRC)config.h $(SRC)error.h $(SRC)response.h $(SRC)socket_wrapper.h $(SRC)uri.h $(SRC)utility.hpp
+$(OBJ)%.o: $(SRC)%.cpp ./include/cpprequest.h $(SRC)config.h $(SRC)error.h $(SRC)response.h $(SRC)socket_wrapper.h $(SRC)uri.h $(SRC)utility.hpp
 	$(CC) $(CPPFLAGS) -o $@ $<
 
 
