@@ -89,8 +89,17 @@ int main() {
 }
 ```
 
-## Usage
-### Linux (G++)
+# Usage
+## Linux (G++)
+### Notes
+- Install dependencies before compiling and linking.
+
+##### Ubuntu
+- `sudo apt-add-repository universe`
+- `sudo apt update`
+- `sudo apt install -y g++ make`
+
+### Compile and link
 1) Compile cpprequest
     - `make`
 2) Include cpprequest as a header in your program (your_program.cpp)
@@ -98,7 +107,11 @@ int main() {
 3) Compile your program
     - `g++ your_program.cpp -std=c++17 -I/path/to/cpprequest/include/ -L/path/to/cpprequest/ -lcpprequest -o your_program`
 
-### Windows (CL)
+## Windows (CL)
+### Notes
+- These steps are run from a Visual Studio developer's command prompt
+
+### Compile and link
 1) Compile cpprequest
     - `./Makefile.bat`
 2) Include cpprequest as a header in your program (your_program.cpp)
@@ -110,6 +123,6 @@ int main() {
 5) Link to cpprequest 
     - `link your_program.obj cpprequest.lib /LIBPATH:"/path/to/cpprequest/"`
 
-## Supported compilers
+# Supported compilers
 - G++
 - CL
