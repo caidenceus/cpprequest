@@ -1,23 +1,25 @@
-CC = gcc
-BIN = ./bin/
+.SUFFIXES:
+.SUFFIXES: .cpp .o
+
+# TODO: Consider using vpaths
+CC = g++
 LIB = ./
 SRC = ./src/
-CFLAGS = -Wall -Wextra -Werror -Wsign-conversion -Weffc++ -std=c++17
-INCLUDE = -I$(SRC)
-HEADERS = $(SRC)config.h $(SRC)cpprequest.h $(SRC)definition.h $(SRC)includes.h $(SRC)socket_io.h $(SRC)socket_util.h $(SRC)socket_wrapper.h $(SRC)utility.h
-OBJS = $(BIN)cpprequest.o $(BIN)response.o $(BIN)socket_io.o $(BIN)socket_util.o $(BIN)socket_wrapper.o $(BIN)uri.o $(BIN)utility.o
+OBJ = ./bin/
+CPPFLAGS = -I./include/ -I./src/ -Wall -Wextra -Werror -Wsign-conversion -Weffc++ -std=c++17 -Wno-type-limits
+OBJECTS = $(addprefix $(OBJ), cpprequest.o error.o response.o socket_wrapper.o uri.o utility.o)
 
 
-libcpprequest.a: $(OBJS)
-	mv *.o $(BIN)
-	ar cr $(LIB)$@ $^
+$(OBJECTS): $(OBJ)%.o: $(SRC)%.cpp ./include/cpprequest.h $(SRC)config.h $(SRC)error.h $(SRC)response.h $(SRC)socket_wrapper.h $(SRC)uri.h $(SRC)utility.hpp
+	$(CC) $(CPPFLAGS) -o $@ $<
 
 
-$(BIN)%.o: $(SRC)%.cpp $(HEADERS)
-	$(CC) $(CFLAGS) $(INCLUDE) -c $<
+$(LIB)libcpprequest.a: $(OBJECTS)
+	ar cr $@ $^
 
 
 .PHONY: clean
 clean:
-	rm -rf $(BIN)*
+	rm -rf $(OBJDIR)*
 	rm $(LIB)libcpprequest.a
+	touch $(OBJDIR)PLACEHOLDER.txt
