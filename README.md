@@ -1,6 +1,6 @@
 # cpprequest
 
-cpprequest is a simple cross-platform static library for sending and receiving HTTP data.
+cpprequest is a simple cross-platform static library for sending and receiving HTTP data. Works on Windows with CL and Linux with G++.
 
 ## Example 1 (GET request on Linux)
 A basic example of sending a GET request with the request line "GET /public/index.php HTTP/1.1" to 127.0.0.1 on port 80.
@@ -90,49 +90,26 @@ int main() {
 ```
 
 ## Usage
-### Linux
-1) Execute `make` to compile.
-2) Add `#include "cpprequest.h"` at the top of your file.
-3) When compiling your program, add the arguments `-std=c++17 -I/path/to/cpprequest/ -L/path/to/cpprequest/ -lcpprequest` (replacing "/path/to/cpprequest/" with the full or relative path to the parent directory of this file)
+### Linux (G++)
+1) Compile cpprequest
+    - `make`
+2) Include cpprequest as a header in your program (your_program.cpp)
+    - `#include "cpprequest.h"`
+3) Compile your program
+    - `g++ your_program.cpp -std=c++17 -I/path/to/cpprequest/include/ -L/path/to/cpprequest/ -lcpprequest -o your_program`
 
-### Windows
-1) Run Makefile.bat to compile.
-2) #include "cpprequest.h" at the top of your file
-3) Link to Winsock (see example 4)
-4) Create Makefile.bat and run it to compile your program and link with cpprequest.lib. An example compile script is shown below.
-```bat
-REM Makefile.bat
-REM
-REM This Makefile assumes your project has the following structure:
-REM
-REM    /your_project/
-REM        your_code.cpp  <- cpprequest.h is included in this file
-REM        Makefile.bat   <- This is the file you are currently viewing
-REM        /bin/
-REM        /lib/
-REM            /cpprequest/  <- this is this repository
-
-REM ========== Copy everything below this line into Makefile.bat ==========
-
-@echo off
-pushd bin
-
-cl^
-  -Zi^
-  -EHsc^
-  -I "../lib/cpprequest/include/"^
-  -c^
-  ../your_code.cpp &&^
-link your_code.obj^
-  cpprequest.lib^
-  /LIBPATH:"../lib/cpprequest/"
-
-popd
-```
-
-- Ubuntu Linux
-- Windows 10
+### Windows (CL)
+1) Compile cpprequest
+    - `./Makefile.bat`
+2) Include cpprequest as a header in your program (your_program.cpp)
+    - `#include "cpprequest.h"`
+3) Link to Winsock
+    - Add `#pragma comment(lib, "Ws2_32.lib")` above your "main" function in your_program.cpp.
+4) Compile your program (your_program.cpp)
+    - `cl -Zi -EHsc -std:c++17 -I "/path/to/cpprequest/include/" -c your_program.cpp`
+5) Link to cpprequest 
+    - `link your_program.obj cpprequest.lib /LIBPATH:"/path/to/cpprequest/"`
 
 ## Supported compilers
-- GCC
+- G++
 - CL
