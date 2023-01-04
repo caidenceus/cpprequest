@@ -150,7 +150,7 @@ int cppr::Request::send(cppr::Response &response)
     // Write to socket
     std::string request_buffer{};
     this->write_request_header(request_buffer);
-    std::cout << request_buffer;  // Debug
+    // std::cout << request_buffer;  // Debug
     int size{ 0 };
     auto remaining{ request_buffer.size() };
 
