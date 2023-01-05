@@ -12,7 +12,7 @@ A basic example of sending a GET request with the request line "GET /public/inde
 int main() {
     cppr::Response response_buff;
     cppr::Request req{ "GET", "http://127.0.0.1/public/index.php" };
-    req.request(response_buff);
+    req.send(response_buff);
 
     // Print the raw response
     std::cout << response_buff.raw;
@@ -38,7 +38,7 @@ int main() {
     req.add_header("Connection", "Keep-Alive");
     req.add_header("Keep-Alive", "timeout=5, max=1000");
   
-    req.request(response_buff);
+    req.send(response_buff);
   
     // Print the raw response
     std::cout << response_buff.raw;
@@ -60,7 +60,7 @@ int main() {
     // Send this request to port 8080
     cppr::Request req{ "POST",  "http://127.0.0.1/public/index.php?param1=value1&param2=value 2", 8080 };
     req.add_header("Cache-Control": "no-cache");
-    req.request(response_buff);
+    req.send(response_buff);
   
     // Print the raw response
     std::cout << response_buff.raw;
@@ -80,7 +80,7 @@ int main() {
 int main() {
     cppr::Response response_buff;
     cppr::Request req{ "GET", "http://127.0.0.1/public/index.php" };
-    req.request(response_buff);
+    req.send(response_buff);
 
     // Print the raw response
     std::cout << response_buff.raw;
