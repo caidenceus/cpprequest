@@ -1,6 +1,7 @@
 # cpprequest
 
-cpprequest is a simple cross-platform static library for sending and receiving HTTP data. Works on Windows with CL and Linux with G++.
+- cpprequest is a simple cross-platform static library for sending and receiving HTTP data. Works on Windows with CL and Linux with G++.
+- For API documentation, see https://github.com/caidenceus/cpprequest/blob/main/include/cpprequest.h
 
 ## Example 1 (GET request on Linux)
 A basic example of sending a GET request with the request line "GET /public/index.php HTTP/1.1" to 127.0.0.1 on port 80.
