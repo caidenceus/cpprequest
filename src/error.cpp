@@ -1,6 +1,8 @@
 #include "error.h"
 
+#if defined(_WIN32) || defined(__CYGWIN__)
 #include "loaddll.h"    // fWSAGetLastError
+#endif // defined(_WIN32) || defined(__CYGWIN__)
 
 #include <system_error>
 

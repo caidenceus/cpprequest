@@ -56,7 +56,7 @@ Uri parse_uri(std::string uri, std::string port)
     authority = authority.substr(3);
 
     // Fragment appears at the end of the string
-    int index = authority.find('#');
+    size_t index = authority.find('#');
     if (index != NPOS) {
         rtn.fragment = authority.substr(index + 1);
         authority.resize(index);
@@ -68,7 +68,7 @@ Uri parse_uri(std::string uri, std::string port)
         rtn.query = authority.substr(index + 1);
         authority.resize(index);
     }
-  
+
     // Percent encode the query
     rtn.query = percent_encode(rtn.query);
 
@@ -98,7 +98,7 @@ Uri parse_uri(std::string uri, std::string port)
     } else {
         rtn.host = authority;
     }
-  
+
     // Optional port host [:port]
     index = rtn.host.find(':');
     if (index != NPOS) {

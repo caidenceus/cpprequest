@@ -1,7 +1,6 @@
 #include "socket_wrapper.h"
 
 #include "error.h"    // get_last_error
-#include "loaddll.h"  // fhtons, finet_addr, fsocket, fconnect, fsend, frecf, fclosesocket
 
 #include <cstdint>
 
@@ -10,8 +9,13 @@
 #include <winsock2.h>
 #include <ws2tcpip.h> // socklen_t
 #pragma pop_macro("WIN32_LEAN_AND_MEAN")
+#include "loaddll.h"  // fhtons, finet_addr, fsocket, fconnect, fsend, frecf, fclosesocket
 #else
+#include <arpa/inet.h>
+#include <netdb.h>
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
 
@@ -89,16 +93,16 @@ int Connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
 
         switch (error)
         {
-        case WSAEADDRNOTAVAIL: 
+        case WSAEADDRNOTAVAIL:
             msg += "Invalid address; failed to connect";
             break;
-        case WSAENETUNREACH: 
+        case WSAENETUNREACH:
             msg += "Host network is unreachable";
             break;
-        case WSAEHOSTUNREACH: 
+        case WSAEHOSTUNREACH:
             msg += "Host is unreachable";
             break;
-        case WSAETIMEDOUT: 
+        case WSAETIMEDOUT:
             msg += "The connect function timed out";
             break;
         default:
@@ -114,7 +118,8 @@ int Connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
     while (result == -1 && errno == EINTR)
         result = connect(sockfd, addr, addrlen);
 
-    throw std::system_error{ errno, std::system_category(), "Failed to connect" };
+    if (result == -1)
+        throw std::system_error{ errno, std::system_category(), "Failed to connect" };
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
     return result;
@@ -131,10 +136,10 @@ int Send(int sockfd, const char* buffer, size_t len, int flags)
     while (result == -1 && cpprerr::get_last_error() == WSAEINTR)
         result = fsend(sockfd, buffer, static_cast<int>(len), flags);
 #else
-    auto result = send(sockfd, buffer, static_cast<int>(len), flags);
+    auto result = send(sockfd, buffer, len, flags);
 
     while (result == -1 && errno == EINTR)
-        result = send(sockfd, buffer, static_cast<int>(len), flags);
+        result = send(sockfd, buffer, len, flags);
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
     if (result == -1)
@@ -153,10 +158,10 @@ int Recv(int sockfd, void* buffer, size_t len, int flags)
     while (result == -1 && cpprerr::get_last_error() == WSAEINTR)
         result = frecv(sockfd, reinterpret_cast<char*>(buffer), static_cast<int>(len), flags);
 #else
-    auto result = recv(sockfd, reinterpret_cast<char*>(buffer), static_cast<int>(len), flags);
+    auto result = recv(sockfd, reinterpret_cast<char*>(buffer), len, flags);
 
     while (result == -1 && cpprerr::get_last_error() == EINTR)
-        result = frecv(sockfd, reinterpret_cast<char*>(buffer), static_cast<int>(len), flags);
+        result = recv(sockfd, reinterpret_cast<char*>(buffer), len, flags);
 
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 

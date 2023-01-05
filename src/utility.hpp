@@ -1,6 +1,8 @@
 #ifndef CPPR_UTILITY_HPP__
 #define CPPR_UTILITY_HPP__
 
+#include "error.h"
+
 #include <string>
 
 /**

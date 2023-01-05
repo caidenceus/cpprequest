@@ -2,7 +2,6 @@
 
 #include "config.h"         // HTTP_BUFF_SIZE
 #include "error.h"          // get_last_error
-#include "loaddll.h"        // LoadDLLs
 #include "response.h"       // parse_response
 #include "socket_wrapper.h" // Socket, Connect, Htons, Inet_addr, Send, Recv
 #include "uri.h"            // Uri, parse_uri, percent_encode
@@ -19,6 +18,7 @@
 #include <Windows.h>
 #include <Winsock2.h>
 #pragma pop_macro("WIN32_LEAN_AND_MEAN")
+#include "loaddll.h"
 #else
 #include <cstring>
 #include <netdb.h>
