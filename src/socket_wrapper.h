@@ -14,36 +14,23 @@
 
 /**
  * @brief Converts an unsigned short integer from host byte order to network byte order. 
- * 
+ *
  * Note: For more information see:
  *       Linux:   https://man7.org/linux/man-pages/man3/htons.3p.html
  *       Windows: https://learn.microsoft.com/en-us/windows/win32/api/winsock/nf-winsock-htons
- * 
+ *
  * @param hostshort The unsigned host byte order integer to convert.
  * @return The network byte order representation of hostshort.
  */
 std::uint16_t Htons(std::uint16_t hostshort);
 
 /**
- * @brief Convert an IPv4 dotted decimal notation string to an integer suitable 
- *        for use as an Internet address
- *
- * Note: For more information see:
- *       Linux:   https://man7.org/linux/man-pages/man3/inet_addr.3p.html
- *       Windows: https://learn.microsoft.com/en-us/windows/win32/api/winsock/nf-winsock-inet_addr
- * 
- * @param cp The IPv4 address string in dotted decimal notation.
- * @return The unsigned integer representation of the IPv4 string.
- */
-std::uint32_t Inet_addr(const char* cp);
-
-/**
  * @brief Initiate a connection on a socket.
- * 
+ *
  * Note: For more information see:
  *       Linux:   https://man7.org/linux/man-pages/man2/connect.2.html
  *       Windows: https://learn.microsoft.com/en-us/windows/win32/api/winsock2/nf-winsock2-connect
- * 
+ *
  * @param sockfd The socket opened by the Socket function.
  * @param addr The address to connect sockfd to.
  * @param addrlen The size of addr.
@@ -59,11 +46,11 @@ int Connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
  *       only difference between send() and write() is the presence of
  *       flags. With a zero flags argument, send() is equivalent to
  *       write().
- * 
+ *
  * Note: For the flags arguement see:
  *       Linux:   https://man7.org/linux/man-pages/man2/send.2.html
  *       Windows: https://learn.microsoft.com/en-us/windows/win32/api/winsock2/nf-winsock2-send
- * 
+ *
  * @param sockfd The socket to write to.
  * @param buf The message to send.
  * @param len The size of buf.
@@ -78,7 +65,7 @@ int Send(int sockfd, const char* buf, size_t len, int flags);
  * Note: For the flags arguement, see
  *       Linux:   https://man7.org/linux/man-pages/man2/recv.2.html
  *       Windows: https://learn.microsoft.com/en-us/windows/win32/api/winsock/nf-winsock-recv
- * 
+ *
  * @param sockfd The socket to receive a message from.
  * @param buf The string to read the message into.
  * @param len The size of buf.
@@ -111,7 +98,7 @@ int Close(int fd);
 
 /**
  * @brief Get a linked list of addrinfo structures filtered by hints.
- * 
+ *
  * The addrinfo structure used by getaddrinfo() contains the
  * following fields:
  *
@@ -125,7 +112,7 @@ int Close(int fd);
  *              char            *ai_canonname;
  *              struct addrinfo *ai_next;
  *          };
- * 
+ *
  * @param node A domain name or an IPv4 or IPv6 address.
  * @param service A port number or service name (i.e. "http").
  * @param hints An addrinfo structure used to filter the results.

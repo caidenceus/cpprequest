@@ -29,23 +29,6 @@ std::uint16_t Htons(std::uint16_t hostshort)
 }
 
 
-std::uint32_t Inet_addr(const char* cp)
-{
-#if defined(_WIN32) || defined(__CYGWIN__)
-     std::uint32_t net_byte_order_addr = finet_addr(cp);
-
-    if (net_byte_order_addr == INADDR_NONE) {
-        std::string msg = "(INET_ADDR) invalid IPv4 address";
-        throw std::system_error{ cpprerr::get_last_error(), std::system_category(), msg };
-    }
-#else
-     std::uint32_t net_byte_order_addr = inet_addr(cp);
-#endif // if defined(_WIN32) || defined(__CYGWIN__)
-
-    return net_byte_order_addr;
-}
-
-
 int Socket(int domain, int type, int protocol)
 {
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -57,21 +40,37 @@ int Socket(int domain, int type, int protocol)
 
         switch (error)
         {
-        case WSAEPROTOTYPE:
-            msg += "Unsupported protocol for this socket.";
-            break;
-        case WSAESOCKTNOSUPPORT:
-            msg += "Unsupported address family for this type of socket";
+        case WSAENETDOWN:
+            msg += "Network service provider has failed.";
             break;
         default:
             msg += "Failed to create a socket descriptor";
             break;
         }
 
+        fWSACleanup();
         throw std::system_error{ error, std::system_category(), msg };
     }
 #else
     int sock = socket(domain, type, protocol);
+
+    if (sock == -1) {
+        const auto error = cpprerr::get_last_error();
+        std::string msg{ "(SOCKET) " };
+
+        switch (error)
+        {
+        case EACCES:
+            msg += "Permission to create socket denied.";
+            break;
+        default:
+            msg += "Failed to create a socket descriptor";
+            break;
+        }
+
+        fWSACleanup();
+        throw std::system_error{ error, std::system_category(), msg };
+    }
 #endif // if defined(_WIN32) || defined(__CYGWIN__)
 
     return sock;
@@ -81,6 +80,7 @@ int Socket(int domain, int type, int protocol)
 int Connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
 {
 #if defined(_WIN32) || defined(__CYGWIN__)
+    // TODO: handle nonblocking sockets using select
     auto result = fconnect(sockfd, addr, addrlen);
 
     // Interrupted function call
@@ -93,9 +93,6 @@ int Connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
 
         switch (error)
         {
-        case WSAEADDRNOTAVAIL:
-            msg += "Invalid address; failed to connect";
-            break;
         case WSAENETUNREACH:
             msg += "Host network is unreachable";
             break;
@@ -110,6 +107,7 @@ int Connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
             break;
         }
 
+        fWSACleanup();
         throw std::system_error{ error, std::system_category(), msg };
     }
 #else
@@ -118,8 +116,25 @@ int Connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
     while (result == -1 && errno == EINTR)
         result = connect(sockfd, addr, addrlen);
 
-    if (result == -1)
-        throw std::system_error{ errno, std::system_category(), "Failed to connect" };
+    if (result == -1) {
+        const auto error = cpprerr::get_last_error();
+        std::string msg{ "(CONNECT) " };
+
+        switch (error)
+        {
+        case ENETUNREACH:
+            msg += "Host network is unreachable";
+            break;
+        case ETIMEDOUT:
+            msg += "The connect function timed out";
+            break;
+        default:
+            msg += "Error connecting to host";
+            break;
+        }
+
+        throw std::system_error{ error, std::system_category(), msg };
+    }
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
     return result;
@@ -133,17 +148,47 @@ int Send(int sockfd, const char* buffer, size_t len, int flags)
     // auto result = fsend(sockfd, reinterpret_cast<const char*>(buffer), static_cast<int>(length), 0);
     auto result = fsend(sockfd, buffer, static_cast<int>(len), flags);
 
-    while (result == -1 && cpprerr::get_last_error() == WSAEINTR)
+    while (result == SOCKET_ERROR && cpprerr::get_last_error() == WSAEINTR)
         result = fsend(sockfd, buffer, static_cast<int>(len), flags);
+
+    if (result == SOCKET_ERROR) {
+        const auto error = cpprerr::get_last_error();
+        std::string msg{ "(SEND) " };
+
+        switch (error)
+        {
+        case WSAENETDOWN:
+            msg += "The network subsystem is down.";
+            break;
+        case WSAEFAULT:
+            msg += "The buf parameter is not completely contained in a valid part of the user address space.";
+            break;
+        case WSAENETRESET:
+            msg += "The connection was broken";
+            break;
+        case WSAEHOSTUNREACH:
+            msg += "The destination host is unreachable.";
+            break;
+        case WSAETIMEDOUT:
+            msg += "The connection has been dropped.";
+            break;
+        default:
+            msg += "Error sending data.";
+            break;
+        }
+
+        fWSACleanup();
+        throw std::system_error{ error, std::system_category(), msg };
+    }
 #else
     auto result = send(sockfd, buffer, len, flags);
 
     while (result == -1 && errno == EINTR)
         result = send(sockfd, buffer, len, flags);
-#endif // defined(_WIN32) || defined(__CYGWIN__)
-
+    
     if (result == -1)
         throw std::system_error{ cpprerr::get_last_error(), std::system_category(), "Failed to send data" };
+#endif // defined(_WIN32) || defined(__CYGWIN__)
 
     return result;
 }
