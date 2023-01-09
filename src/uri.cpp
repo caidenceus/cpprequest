@@ -1,8 +1,9 @@
 #include "uri.h"       // Uri, percent_encode
 
 #include "error.h"     // ParseError
-#include "utility.hpp" // is_alpha, is_digit
+#include "utility.hpp" // is_alpha, is_digit, to_lower
 
+#include <iostream>
 #include <string>
 #include <unordered_map>
 
@@ -44,6 +45,11 @@ Uri parse_uri(std::string uri, std::string port)
 
     for (; head != tail && valid_uri_scheme_character(*head); ++head)
         rtn.scheme.push_back(*head);
+
+    if (to_lower(rtn.scheme) != "http") {
+        std::cout << "Only the HTTP scheme is supported"; // debug
+        throw cpprerr::RequestError{ "Only the HTTP scheme is supported" };
+    }
 
     std::string authority = std::string(head, tail);
     if (head == tail || authority.substr(0, 3) != "://")
