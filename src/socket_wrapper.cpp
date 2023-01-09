@@ -3,6 +3,7 @@
 #include "error.h"    // get_last_error
 
 #include <cstdint>
+#include <iostream>
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 #pragma push_macro("WIN32_LEAN_AND_MEAN")
@@ -186,8 +187,25 @@ int Send(int sockfd, const char* buffer, size_t len, int flags)
     while (result == -1 && errno == EINTR)
         result = send(sockfd, buffer, len, flags);
     
-    if (result == -1)
-        throw std::system_error{ cpprerr::get_last_error(), std::system_category(), "Failed to send data" };
+    if (result == -1) {
+        const auto error = cpprerr::get_last_error();
+        std::string msg{ "(SEND) " };
+
+        switch (error)
+        {
+        case EACCES:
+            msg += "Access denied.";
+            break;
+        case ECONNRESET:
+            msg += "Connection reset by peer.";
+            break;
+        default:
+            msg += "Error sending data.";
+            break;
+        }
+
+        throw std::system_error{ error, std::system_category(), msg };
+    }
 #endif // defined(_WIN32) || defined(__CYGWIN__)
 
     return result;
@@ -202,16 +220,54 @@ int Recv(int sockfd, void* buffer, size_t len, int flags)
 
     while (result == -1 && cpprerr::get_last_error() == WSAEINTR)
         result = frecv(sockfd, reinterpret_cast<char*>(buffer), static_cast<int>(len), flags);
+
+    if (result == INVALID_SOCKET) {
+        const auto error = cpprerr::get_last_error();
+        std::string msg{ "(RECV) " };
+
+        switch (error)
+        {
+        case WSAENETDOWN:
+            msg += "The network subsystem is down.";
+            break;
+        case WSAEFAULT:
+            msg += "Invalid receive buffer.";
+            break;
+        default:
+            msg += "Error receiving data.";
+            break;
+        }
+
+        fWSACleanup();
+        throw std::system_error{ error, std::system_category(), msg };
+    }
 #else
     auto result = recv(sockfd, reinterpret_cast<char*>(buffer), len, flags);
 
     while (result == -1 && cpprerr::get_last_error() == EINTR)
         result = recv(sockfd, reinterpret_cast<char*>(buffer), len, flags);
+    
+    if (result == -1) {
+        const auto error = cpprerr::get_last_error();
+        std::string msg{ "(RECV) " };
+
+        switch (error)
+        {
+        case ECONNREFUSED:
+            msg += "Remote connection refused.";
+            break;
+        case EFAULT:
+            msg += "Invalid receive buffer.";
+            break;
+        default:
+            msg += "Error receiving data.";
+            break;
+        }
+
+        throw std::system_error{ error, std::system_category(), msg };
+    }
 
 #endif // defined(_WIN32) || defined(__CYGWIN__)
-
-    if (result == -1)
-        throw std::system_error{ cpprerr::get_last_error(), std::system_category(), "Failed to read data" };
 
     return result;
 }
@@ -232,11 +288,67 @@ int Getaddrinfo(const char* node,
     const struct addrinfo* hints,
     struct addrinfo** res)
 {
+    int ret;
 #if defined(_WIN32) || defined(__CYGWIN__)
-    return fgetaddrinfo(node, service, hints, res);
+    if ((ret = fgetaddrinfo(node, service, hints, res)) != 0) {
+        const auto error = cpprerr::get_last_error();
+        std::string msg{ "(GETADDRINFO) " };
+
+        switch (error)
+        {
+        case WSAEAFNOSUPPORT:
+            msg += "Invalid value passed as ai_flamily in hints.";
+            break;
+        case WSANO_RECOVERY:
+            msg += "Unknown unrecoverable error.";
+            break;
+        case WSATYPE_NOT_FOUND:
+            msg += "The service is not supported by the ai_socktype member of hints.";
+            std::cout << "The port provided appears to be closed.";
+            break;
+        case WSAESOCKTNOSUPPORT:
+            msg += "The ai_socktype member of the hints parameter is not supported.";
+            std::cout << "TCP is not supported on the host/port pair provided.";
+            break;
+        default:
+            msg += "Error getting host information.";
+            break;
+        }
+
+        fWSACleanup();
+        throw std::system_error{ error, std::system_category(), msg };
+    }
 #else
-    return getaddrinfo(node, service, hints, res);
+    if ((ret = getaddrinfo(node, service, hints, res)) != 0) {
+        const auto error = cpprerr::get_last_error();
+        std::string msg{ "(GETADDRINFO) " };
+
+        switch (error)
+        {
+        case EAI_ADDRFAMILY:
+            msg += "The specified network host does not have any network addresses in the requested address family.";
+            break;
+        case EAI_FAIL:
+            msg += "The name server returned a permanent failure indication..";
+            break;
+        case EAI_NONAME:
+            msg += "The host or port is unknown.";
+            std::cout << "The host or port is unknown.";
+            break;
+        case EAI_SERVICE:
+            msg += "The requested service is not available for the requestedsocket type.";
+            std::cout << "TCP is not supported on the host/port pair provided.";
+            break;
+        default:
+            msg += "Error getting host information.";
+            break;
+        }
+
+        throw std::system_error{ error, std::system_category(), msg };
+    }
 #endif // if defined(_WIN32) || defined(__CYGWIN__)
+
+    return ret;
 }
 
 
